@@ -1,0 +1,36 @@
+{
+  "ConnectionStrings": {
+    "PgSQL": "Host=db;Port=5432;Database=labs;Username=postgres;Password=<CHANGEID>"
+  },
+  "JwtSecurityKey": "<CHANGE_IT_TO_RANDOM_STRING>",
+  "JwtIssuer": "https://<CHANGE_IT_TO_DOMAIN>",
+  "JwtAudience": "https://<CHANGE_IT_TO_DOMAIN>",
+  "JwtExpiryInDays": 7,
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.AspNetCore": "Warning"
+    }
+  },
+  "AllowedHosts": "*",
+  "GitLabClient": {
+    "url": "http://gitlab",
+    "secret_token": "<CHANGE_IT_TO_GITLAB_USER_AUTH_TOKEN>"
+  },
+  "Services": {
+    "TestRunner": {
+      "period": "00:00:10"
+    },
+    "MergeRequestMonitor": {
+      "period": "00:00:15"
+    }
+  },
+  "SMTP": {
+    "domain": "<CHANGE_IT_TO_MAIL_SERVER_DOMAIN>",
+    "email": "<CHANGE_IT_TO_EMAIL_ADDRESS>",
+    "username": "<CHANGE_IT_TO_EMAIL_SERVER_USER>",
+    "password": "<CHANGE_IT_TO_EMAIL_SERVER_PASSWORD>",
+    "ssl": true,
+    "port": 587
+  }
+}

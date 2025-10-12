@@ -1,0 +1,76 @@
+<div class="card">
+    <div class="card-header">
+        <a routerLink="/groups">{{ 'utilGroupsLink' | translate }}</a>
+        /
+        {{ group?.name ?? 'utilTextLoading' }}
+        /
+        {{ 'groupStudentsTitleGroup' | translate }}
+    </div>
+    <div class="card-body">
+        <h5 class="card-title">{{ 'groupStudentsPageTitle' | translate }}</h5>
+        <p class="card-text">{{ 'groupStudentsPageDescription' | translate: { group: group?.name ?? '' } }}</p>
+        <div class="table-responsive overflow-auto card-table">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col">{{ 'groupStudentsNameColumn' | translate }}</th>
+                        <th scope="col">{{ 'groupStudentsEmailColumn' | translate }}</th>
+                        <th scope="col"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (student of students.getElements(); track student)
+                    {
+                    <tr>
+                        <td>
+                            @if (student.gitLabUserId)
+                            {
+                            <a href="{{ makeGitLabUserLink(student) }}" target="_blank">
+                                <i class="fs-4 bi-gitlab me-1 fc-gitlab"></i>
+                            </a>
+                            }
+                            @else
+                            {
+                                <i class="fs-4 bi-gitlab me-1"></i>
+                            }
+                           {{ student.name }}
+                        </td>
+                        <td>
+                            {{ student.email }}
+                        </td>
+                        <td>
+                            <button class="btn btn-primary" (click)="openEditStudentModal(student)">
+                                <i class="fs-5 bi-pencil-square"></i>
+                                {{ 'groupStudentsEditStudentButton' | translate }}
+                            </button>
+                            <button class="btn btn-primary ms-1" (click)="sendEmail(student)">
+                                <i class="fs-5 bi-envelope-at"></i>
+                                {{ 'groupStudentsSendCredentialsStudentButton' | translate }}
+                            </button>
+                        </td>
+                    </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        <hr>
+        <div class="form-group">
+            <button class="btn btn-success" (click)="openAddStudentModal()">
+                <i class="fs-4 bi-person-add"></i>
+                {{ 'groupStudentsNewStudentButton' | translate }}
+            </button>
+            <button class="btn btn-primary ms-2" (click)="openImportStudentsModal()">
+                <i class="fs-4 bi-upload"></i>
+                {{ 'groupStudentsUploadStudentsList' | translate }}
+            </button>
+            <button class="btn btn-primary bg-gitlab ms-2" (click)="gitlabSync()">
+                <i class="fs-4 bi-gitlab"></i>
+                {{ 'groupStudentsGitlabSyncButton' | translate }}
+            </button>
+            <button class="btn btn-primary ms-2" (click)="sendEmails()">
+                <i class="fs-4 bi-envelope-at"></i>
+                {{ 'groupStudentsSendCredentialsButton' | translate }}
+            </button>
+        </div>
+    </div>
+</div>

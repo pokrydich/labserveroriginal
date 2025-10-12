@@ -1,0 +1,53 @@
+# From .NET Core 3.0 you can use the command: `dotnet new gitignore` to generate a customizable .gitignore file
+
+# deployment files
+labserver.tar
+labsdbschema.sql
+
+
+certbot/
+Server/appsettings.docker.json
+
+.VSCodeCounter
+
+*.swp
+*.*~
+project.lock.json
+.DS_Store
+*.pyc
+
+# Visual Studio Code
+.vscode
+
+# User-specific files
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+build/
+bld/
+[Bb]in/
+[Oo]bj/
+msbuild.log
+msbuild.err
+msbuild.wrn
+
+# Visual Studio 2015
+.vs/
+
+# project
+Server/*.db
+Server/*.db-*
+Server/Migrations
+
+Server/appsettings.json
+Server/labsdbschema.pgsql
+labserver_deployment.tar.gz

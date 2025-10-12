@@ -1,0 +1,81 @@
+services:
+  labserver:
+    image: labserver
+    build:
+      context: .
+      dockerfile: Server/Dockerfile
+    volumes:
+      - './Server/appsettings.docker.json:/app/appsettings.json:ro'
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "512k"
+        max-file: 16
+
+  webserver:
+    image: nginx:latest
+    ports:
+      - 80:80
+    restart: always
+    volumes:
+      - ./nginx/conf/:/etc/nginx/conf.d/:ro
+      - ./nginx/sites/:/var/www/sites/:ro
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "512k"
+        max-file: 16
+
+  db:
+    image: postgres
+    restart: always
+    shm_size: 128m
+    ports:
+      - "127.0.0.1:5432:5432"
+    environment:
+      POSTGRES_PASSWORD: 123456
+      POSTGRES_DB: labs
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "512k"
+        max-file: 16
+
+  gitlab:
+    image: gitlab/gitlab-ce:latest
+    container_name: gitlab
+    restart: always
+    hostname: 'git.labserver.local'
+    environment:
+      GITLAB_OMNIBUS_CONFIG: |
+        # Add any other gitlab.rb configuration here, each on its own line
+        external_url 'http://git.labserver.local'
+        nginx['redirect_http_to_https'] = false
+        letsencrypt['enable'] = false
+    ports:
+      - '8022:22'
+    volumes:
+      - '/srv/github/config:/etc/gitlab'
+      - '/srv/github/logs:/var/log/gitlab'
+      - '/srv/github/data:/var/opt/gitlab'
+    shm_size: '256m'
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "512k"
+        max-file: 16
+
+  gitlab-runner:
+    image: gitlab/gitlab-runner:latest
+    container_name: gitlab-runner
+    restart: always
+    depends_on:
+      - gitlab
+    volumes:
+      - '/srv/gitlab-runner/config:/etc/gitlab-runner'
+      - '/var/run/docker.sock:/var/run/docker.sock'
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "512k"
+        max-file: 16

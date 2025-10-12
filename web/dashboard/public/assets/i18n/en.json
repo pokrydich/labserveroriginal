@@ -1,0 +1,36 @@
+{
+    "loadingMessage" : "Loading...",
+    
+    "enterTokenTitle" : "Authentication",
+    "tokenLabel" : "Unique token",
+    "tokenPlaceholder" : "abcde123...",
+    "submitTokenButton" : "Enter",
+
+
+    "errorTitle" : "Error",
+    "authError" : "Unauthorized",
+
+
+    "mylabsHeader" : "MyLabs",
+    "accessDataTitle" : "Access data",
+    "gitlabLink" : "GitLab link: ",
+    "showGitLabCredsButton" : "Show GitLab credentials",
+    "gitLabCredsModalTitle" : "GitLab credentials",
+    "gitLabUsername" : "Username: ",
+    "gitLabPassword" : "Password: ",
+    
+    "labsTableTitle" : "Labs",
+    "labsTableDescription" : "List of available labs",
+
+    "labsTableLabNameColumn" : "Name",
+    "labsTableLabOpenedColumn" : "Opened",
+    "labsTableLabNotesColumn" : "Notes",
+    "labsTableLabStatusColumn" : "Status",
+    
+    "openLabNotesButton" : "Show",
+    "labNotesModalTitle" : "Notes",
+
+    "labStatusComplete" : "Complete",
+    "labStatusInProgress" : "In Progress",
+    "labStatusOverdue" : "Overdue"
+}

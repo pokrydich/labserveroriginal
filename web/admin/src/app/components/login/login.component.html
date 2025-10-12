@@ -1,0 +1,31 @@
+<div class="d-flex justify-content-center vh-100 align-items-center">
+    <div class="card w-75">
+        <div class="card-header text-center text-white bg-dark">
+        {{ 'loginTitle' | translate }}
+        </div>
+        <div class="card-body">
+            <form [formGroup]="loginForm">
+                <div class="form-group">
+                    <label for="username">{{ 'loginUsername' | translate }}</label>
+                    <input type="email" 
+                            class="form-control" 
+                            id="username" 
+                            formControlName="username"
+                            placeholder="{{ 'loginUsernamePlaceholder' | translate }}">
+                </div>
+                <div class="form-group">
+                    <label for="password">{{ 'loginPassword' | translate }}</label>
+                    <input type="password" 
+                            class="form-control" 
+                            id="password" 
+                            formControlName="password"
+                            placeholder="{{ 'loginPasswordPlaceholder' | translate }}">
+                </div>
+                <div class="d-flex mb-2 align-items-center">
+                    <button type="submit" class="btn btn-secondary mt-2 me-auto" (click)="login()">{{ 'loginLoginButton' | translate }}</button>
+                    <a class="align-middle" routerLink="/register">{{ 'loginRegisterLink' | translate }}</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

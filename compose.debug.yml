@@ -1,0 +1,40 @@
+services:
+  db:
+    image: postgres
+    restart: always
+    shm_size: 128m
+    ports:
+      - "127.0.0.1:5432:5432"
+    environment:
+      POSTGRES_PASSWORD: changeit
+      POSTGRES_DB: labs
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "512k"
+        max-file: 16
+
+  gitlab:
+    image: gitlab/gitlab-ce:latest
+    container_name: gitlab
+    restart: always
+    hostname: 'git.ooplabs.ru'
+    environment:
+      GITLAB_OMNIBUS_CONFIG: |
+        # Add any other gitlab.rb configuration here, each on its own line
+        external_url 'http://git.labserver.local'
+        nginx['redirect_http_to_https'] = false
+        letsencrypt['enable'] = false
+    ports:
+      - '8022:2222'
+      - '80:80'
+    volumes:
+      - '/srv/gitlab/config:/etc/gitlab'
+      - '/srv/gitlab/logs:/var/log/gitlab'
+      - '/srv/gitlab/data:/var/opt/gitlab'
+    shm_size: '256m'
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "512k"
+        max-file: 16

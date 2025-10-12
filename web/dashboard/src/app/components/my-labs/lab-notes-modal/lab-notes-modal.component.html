@@ -1,0 +1,7 @@
+<div class="modal-header">
+    <h4 class="modal-title pull-left">{{ 'labNotesModalTitle' | translate }}</h4>
+    <button type="button" class="btn-close close pull-right" aria-label="Close" (click)="bsModalRef.hide()">
+        <span aria-hidden="true" class="visually-hidden">&times;</span>
+    </button>
+</div>
+<textarea class="form-control" disabled rows="20" [value]="notes"></textarea>

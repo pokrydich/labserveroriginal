@@ -1,0 +1,49 @@
+<div class="modal-header">
+    <h4 class="modal-title pull-left">{{ 'groupStudentEditModalTitle' | translate }} {{ student?.name ?? 'utilLoading' | translate }}</h4>
+    <button type="button" class="btn-close close pull-right" aria-label="Close" (click)="bsModalRef.hide()">
+        <span aria-hidden="true" class="visually-hidden">&times;</span>
+    </button>
+</div>
+<form [formGroup]="editStudentForm">
+    <div class="modal-body">
+        <div class="form-group">
+            <label for="studentname">{{ 'groupStudentEditModalName' | translate }}</label>
+            <input type="text" 
+                    class="form-control" 
+                    id="studentname" 
+                    formControlName="studentname"
+                    placeholder="{{ 'groupStudentEditModalNamePlaceholder' | translate }}">
+        </div>
+        <div class="form-group">
+            <label for="username">{{ 'groupStudentEditModalUsername' | translate }}</label>
+            <input type="text" 
+                    class="form-control" 
+                    id="username" 
+                    formControlName="username"
+                    placeholder="{{ 'groupStudentEditModalUsernamePlaceholder' | translate }}">
+        </div>
+        <div class="form-group">
+            <label for="studentemail">{{ 'groupStudentEditModalEmail' | translate }}</label>
+            <input type="text" 
+                    class="form-control" 
+                    id="studentemail" 
+                    formControlName="studentemail"
+                    placeholder="{{ 'groupStudentEditModalEmailPlaceholder' | translate }}">
+        </div>
+        <div class="form-group">
+            <label for="gitlabPassword">{{ 'groupStudentEditModalPassword' | translate }}</label>
+            <input type="text"
+                    disabled
+                    class="form-control" 
+                    id="gitlabPassword"
+                    value="{{ student?.initialPassword ?? '' }}">
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="submit" 
+                class="btn btn-success"
+                (click)="editStudent()">
+            {{ 'groupStudentEditModalSubmit' | translate }}
+        </button>
+    </div>
+</form>

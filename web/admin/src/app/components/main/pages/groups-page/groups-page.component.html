@@ -1,0 +1,56 @@
+<div class="card">
+    <div class="card-header">{{ 'groupsPageHeader' | translate }}</div>
+    <div class="card-body">
+        <h5 class="card-title">{{ 'groupsPageTitle' | translate }}</h5>
+        <p class="card-text">{{ 'groupsPageDescription' | translate }}</p>
+        <div class="table-responsive card-table">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col">{{ 'groupsGroupNameColumn' | translate }}</th>
+                        <th scope="col"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (group of groups.getElements(); track group)
+                    {
+                    <tr>
+                        <td>
+                            @if (group.gitLabGroupId)
+                            {
+                            <a href="{{ makeGroupLink(group) }}" target="_blank">
+                                <i class="fs-4 bi-gitlab me-1 fc-gitlab"></i>
+                            </a>
+                            }
+                            @else
+                            {
+                                <i class="fs-4 bi-gitlab me-1"></i>
+                            }
+                            <a routerLink="/group/{{group.id}}/students">
+                                {{ group.name }}
+                            </a>
+                        </td>
+                        <td>
+                            <button class="btn btn-primary" routerLink="/group/{{ group.id }}/courses" >
+                                <i class="fs-4 bi-clipboard"></i>
+                                {{ 'groupsGroupCourses' | translate }}
+                            </button>
+                        </td>
+                    </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        <hr>
+        <div class="form-group">
+            <button class="btn btn-success" (click)="openCreateGroupModal()">
+                <i class="fs-4 bi-plus"></i>
+                {{ 'groupsNewGroupButton' | translate }}
+            </button>
+            <button class="btn btn-primary bg-gitlab ms-2" (click)="gitlabSync()">
+                <i class="fs-4 bi-gitlab"></i>
+                {{ 'groupsGitlabSyncButton' | translate }}
+            </button>
+        </div>
+    </div>
+</div>

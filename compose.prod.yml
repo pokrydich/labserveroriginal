@@ -1,0 +1,76 @@
+services:
+  labserver:
+    image: labserver
+    build:
+      context: .
+      dockerfile: Server/Dockerfile
+    volumes:
+      - './Server/appsettings.docker.json:/app/appsettings.json:ro'
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "512k"
+        max-file: 16
+
+  webserver:
+    image: nginx:latest
+    ports:
+      - 80:80
+      - 443:443
+    restart: always
+    volumes:
+      - ./nginx/conf/:/etc/nginx/conf.d/:ro
+      - ./certbot/conf/live/:/etc/nginx/ssl/live/:ro
+      - ./certbot/conf/archive:/etc/nginx/ssl/archive/:ro
+      - ./certbot/www/:/var/www/certbot/:ro
+      - ./nginx/sites/:/var/www/sites/:ro
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "512k"
+        max-file: 16
+
+  certbot:
+    image: certbot/certbot:latest
+    volumes:
+      - ./certbot/www/:/var/www/certbot/:rw
+      - ./certbot/conf/:/etc/letsencrypt/:rw
+
+  db:
+    image: postgres
+    restart: always
+    shm_size: 128m
+    ports:
+      - "127.0.0.1:5432:5432"
+    environment:
+      POSTGRES_PASSWORD: changeit
+      POSTGRES_DB: labs
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "512k"
+        max-file: 16
+
+  gitlab:
+    image: gitlab/gitlab-ce:latest
+    container_name: gitlab
+    restart: always
+    hostname: 'git.ooplabs.ru'
+    environment:
+      GITLAB_OMNIBUS_CONFIG: |
+        # Add any other gitlab.rb configuration here, each on its own line
+        external_url 'http://git.ooplabs.ru'
+        nginx['redirect_http_to_https'] = false
+        letsencrypt['enable'] = false
+    ports:
+      - '8022:22'
+    volumes:
+      - '/srv/github/config:/etc/gitlab'
+      - '/srv/github/logs:/var/log/gitlab'
+      - '/srv/github/data:/var/opt/gitlab'
+    shm_size: '256m'
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "512k"
+        max-file: 16

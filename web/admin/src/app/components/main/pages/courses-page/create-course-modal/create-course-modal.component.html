@@ -1,0 +1,25 @@
+<div class="modal-header">
+    <h4 class="modal-title pull-left">{{ 'coursesCreateModalTitle' | translate }}</h4>
+    <button type="button" class="btn-close close pull-right" aria-label="Close" (click)="bsModalRef.hide()">
+        <span aria-hidden="true" class="visually-hidden">&times;</span>
+    </button>
+</div>
+<form [formGroup]="createCourseForm">
+    <div class="modal-body">
+        <div class="form-group">
+            <label for="coursename">{{ 'coursesCreateModalName' | translate }}</label>
+            <input type="text" 
+                    class="form-control" 
+                    id="coursename" 
+                    formControlName="coursename"
+                    placeholder="{{ 'coursesCreateModalNamePlaceholder' | translate }}">
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="submit" 
+                class="btn btn-success"
+                (click)="createCourse()">
+            {{ 'coursesCreateModalSubmit' | translate }}
+        </button>
+    </div>
+</form>

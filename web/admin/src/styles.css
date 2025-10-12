@@ -1,0 +1,36 @@
+/* You can add global styles to this file, and also import other style files */
+@import url('../node_modules/bootstrap-icons/font/bootstrap-icons.css');
+
+.bg-gitlab {
+    background-color: #FC6D26;
+    border-color: #FC6D26;
+}
+
+.bg-gitlab:hover {
+    background-color: #df540e;
+    border-color: #df540e;
+}
+
+.bg-gitlab:active {
+    background-color: #df540e;
+    border-color: #df540e;
+}
+
+.bg-gitlab:focus {
+    background-color: #df540e;
+    border-color: #df540e;
+}
+
+.fc-gitlab {
+    color: #FC6D26;
+}
+
+.card-table {
+    overflow: auto;
+    max-height: 500px;
+}
+
+.card-scrollable {
+    overflow: auto;
+    max-height: 900px;
+}

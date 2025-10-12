@@ -1,0 +1,104 @@
+<div class="card card-scrollable">
+    <div class="card-header">
+        @if (studentLab)
+        {
+            <a routerLink="/groups">
+                {{ 'utilGroupsLink' | translate }}
+            </a>
+            /
+            {{ studentLab.student?.group?.name ?? '' }}
+            /
+            <a routerLink="/group/{{studentLab.student?.group?.id ?? ''}}/courses">
+                {{ 'utilGroupCoursesLink' | translate }}
+            </a>
+            /
+            <a routerLink="/group/{{studentLab.student?.group?.id ?? ''}}/course/{{studentLab.groupCourseLab?.courseLab?.courseId ?? '' }}">
+                {{ studentLab.groupCourseLab?.courseLab?.course?.name ?? '' }}
+            </a>
+            /
+            {{ studentLab.groupCourseLab?.courseLab?.name ?? '' }}
+        }
+        @else
+        {
+            {{ 'utilLoading' | translate }}
+        }
+    </div>
+    <div class="card-body">
+        @if (studentLab)
+        {
+        <h5 class="card-title">{{ 'studentLabPageTitle' | translate: {'student': studentLab.student?.name ?? ''} }}</h5>
+        <hr>
+        
+        <h5 class="card-title">{{ 'studentLabPageNotesTitle' | translate }}</h5>
+        <p class="card-text">{{ 'studentLabPageNotesDescription' | translate }}</p>
+
+        <div class="form-group">
+            @if (studentLab)
+            {
+            <textarea class="form-control" id="labnotes" [(ngModel)]="this.studentLab.notes"></textarea>
+            }
+            @else 
+            {
+            {{ 'utilLoading' | translate }}
+            }
+        </div>
+
+        <hr>
+
+        <h5 class="card-title">{{ 'studentLabPageStatusTitle' | translate }}</h5>
+        <p class="card-text">{{ 'studentLabPageStatusDescription' | translate }}</p>
+        <ul class="list-group">
+        @for (status of getLabStatuses(); track status)
+        {
+            <li class="list-group-item" (click)="setStatus(status)" [ngClass]="getStatusBgColor(status)">
+            {{ ('studentLabStatus' + getStatusTranslationSuffix(status)) | translate }}
+            </li>
+        }
+        </ul>
+
+        <hr>
+
+        <div class="form-group">
+            <button class="btn btn-primary" (click)="saveLabData()">
+                <i class="fs-4 bi-pencil"></i>
+                {{ 'studentLabPageUpdateButton' | translate }}
+            </button>
+        </div>
+        
+        <hr>
+
+        <h5 class="card-title">{{ 'studentLabPageLabSubmissionsTitle' | translate }}</h5>
+        <p class="card-text">{{ 'studentLabPageLabSubmissionsDescription' | translate }}</p>
+        <div class="table-responsive card-table">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col">{{ 'studentLabPageMergeRequestTitle' | translate }}</th>
+                        <th scope="col">{{ 'studentLabPageMergeRequestDate' | translate }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (submission of getLabSubmissions(); track submission)
+                    {
+                    <tr>
+                        <td>
+                            <a href="{{ submission.gitLabMergeRequest?.web_url}}" target="_blank" >
+                                <i class="fs-5 bi-gitlab me-1 fc-gitlab"></i>
+                                {{ submission.gitLabMergeRequest?.title }}
+                            </a>
+                        </td>
+                        <td>
+                            {{ submission.parsedSubmittedDate | date:'dd.MM H:mm'}}
+                        </td>
+                    </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    @else
+    {
+        {{ 'utilLoading' | translate }}
+    }
+    </div>
+</div>

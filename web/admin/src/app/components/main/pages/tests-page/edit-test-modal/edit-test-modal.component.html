@@ -1,0 +1,34 @@
+<div class="modal-header">
+    <h4 class="modal-title pull-left">{{ 'testEditModalTitle' | translate }} {{ test?.name ?? 'utilLoading' | translate }}</h4>
+    <button type="button" class="btn-close close pull-right" aria-label="Close" (click)="bsModalRef.hide()">
+        <span aria-hidden="true" class="visually-hidden">&times;</span>
+    </button>
+</div>
+<form [formGroup]="editTestForm">
+    <div class="modal-body">
+        <div class="form-group">
+            <label for="testname">{{ 'testEditModalName' | translate }}</label>
+            <input type="text" 
+                    class="form-control" 
+                    id="testname" 
+                    formControlName="testname"
+                    placeholder="{{ 'testEditModalNamePlaceholder' | translate }}">
+        </div>
+        <div class="form-group">
+            <label for="serverurl">{{ 'testEditModalUsername' | translate }}</label>
+            <input type="text" 
+                    class="form-control" 
+                    id="serverurl" 
+                    formControlName="serverurl"
+                    placeholder="{{ 'testEditModalUsernamePlaceholder' | translate }}">
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="submit" 
+                class="btn btn-success"
+                [disabled]="saveButtonActive()"
+                (click)="saveChanges()">
+            {{ 'testEditModalSubmit' | translate }}
+        </button>
+    </div>
+</form>

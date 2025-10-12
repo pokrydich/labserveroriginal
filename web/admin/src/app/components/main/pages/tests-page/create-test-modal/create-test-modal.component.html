@@ -1,0 +1,33 @@
+<div class="modal-header">
+    <h4 class="modal-title pull-left">{{ 'testCreateModalTitle' | translate }}</h4>
+    <button type="button" class="btn-close close pull-right" aria-label="Close" (click)="bsModalRef.hide()">
+        <span aria-hidden="true" class="visually-hidden">&times;</span>
+    </button>
+</div>
+<form [formGroup]="createTestForm">
+    <div class="modal-body">
+        <div class="form-group">
+            <label for="testname">{{ 'testCreateModalName' | translate }}</label>
+            <input type="text" 
+                    class="form-control" 
+                    id="testname" 
+                    formControlName="testname"
+                    placeholder="{{ 'testCreateModalNamePlaceholder' | translate }}">
+        </div>
+        <div class="form-group">
+            <label for="serverurl">{{ 'testCreateModalServerUrl' | translate }}</label>
+            <input type="text" 
+                    class="form-control" 
+                    id="serverurl" 
+                    formControlName="serverurl"
+                    placeholder="{{ 'testCreateModalServerUrlPlaceholder' | translate }}">
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="submit" 
+                class="btn btn-success"
+                (click)="createCourse()">
+            {{ 'testCreateModalSubmit' | translate }}
+        </button>
+    </div>
+</form>

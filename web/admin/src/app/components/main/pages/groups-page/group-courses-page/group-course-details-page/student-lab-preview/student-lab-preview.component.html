@@ -1,0 +1,29 @@
+@if (lab)
+{
+<ul class="list-group">
+    <li class="list-group-item">
+        <a routerLink="/student/{{ lab.studentId }}/lab/{{ lab.id }}">
+            <a href="{{makeGitLabLink()}}" target="_blank">
+                <i class="fs-5 bi-gitlab fc-gitlab"></i>
+            </a>
+            {{ 'studentLabPreviewLabStartPrefix' | translate }}
+            {{ lab.parsedData | date:'dd.MM' }}
+        </a>
+    </li>
+    <li class="list-group-item" [ngClass]="getStatusBgColor(lab.status)">
+        @let latestSubmittedDate = latestSubmissionDate();
+        @if (latestSubmittedDate)
+        {
+            {{ 'studentLabPriviewLastSubmissionAt' | translate }} {{ latestSubmittedDate | date:'dd.MM H:mm'}}
+        }
+        @else 
+        {
+            {{ 'studentLabPreviewNoSubmissions' | translate }}
+        }
+    </li>
+</ul>
+}
+@else
+{
+    {{ 'utilLoading' | translate }}
+}

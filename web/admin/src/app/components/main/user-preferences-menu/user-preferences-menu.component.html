@@ -1,0 +1,26 @@
+<div class="card">
+    <div class="card-body">
+        <h5 class="card-title">{{ 'userPreferencesMenuTitle' | translate }}</h5>
+        <p class="card-text">{{ 'userPreferencesMenuDescription' | translate }}</p>
+        <div class="form-group">
+            <label for="locale-select">{{ 'userPreferencesLanguage' | translate }}</label>
+            <select [ngModel]="supportedLocales" id="locale-select" class="form-select" (ngModelChange)="localeServie.setLocale($event)">
+                @for (locale of supportedLocales; track locale)
+                {
+                    @if (checkSelected(locale))
+                    {
+                        <option selected [value]="locale">
+                            {{ ("userPreferencesLocale" + localeServie.cSupportedLocales[locale]) | translate }}
+                        </option>
+                    }
+                    @else
+                    {
+                        <option [value]="locale">
+                            {{ ("userPreferencesLocale" + localeServie.cSupportedLocales[locale]) | translate }}
+                        </option>
+                    }
+                }
+            </select>
+        </div>
+    </div>
+</div>

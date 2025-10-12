@@ -1,0 +1,41 @@
+<div class="card">
+    <div class="card-header">
+        <a routerLink="/courses">{{ 'utilCoursesLink' | translate }}</a>
+        /
+        {{ course?.name ?? 'utilLoading' | translate }}
+        /
+        {{ 'courseLabsPageHeader' | translate }}
+    </div>
+    <div class="card-body">
+        <h5 class="card-title">{{ 'courseLabsPageTitle' | translate }}</h5>
+        <p class="card-text">{{ 'courseLabsPageDescription' | translate:  { "course" : course?.name ?? "" } }}</p>
+        <div class="table-responsive card-table">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col">{{ 'courseLabsPageNameColumn' | translate }}</th>
+                        <th scope="col"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (lab of labs.getElements(); track lab)
+                    {
+                    <tr>
+                        <td>
+                            {{ lab.name }}
+                        </td>
+                        <td></td>
+                    </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        <hr>
+        <div class="form-group">
+            <button class="btn btn-success" (click)="openCreateLabModal()">
+                <i class="fs-4 bi-plus"></i>
+                {{ 'courseLabsPageNewLabButton' | translate }}
+            </button>
+        </div>
+    </div>
+</div>

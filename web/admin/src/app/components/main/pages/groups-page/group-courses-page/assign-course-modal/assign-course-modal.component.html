@@ -1,0 +1,38 @@
+<div class="modal-header">
+    <h4 class="modal-title pull-left">{{ 'groupAssignCourseModalTitle' | translate }}</h4>
+    <button type="button" class="btn-close close pull-right" aria-label="Close" (click)="bsModalRef.hide()">
+        <span aria-hidden="true" class="visually-hidden">&times;</span>
+    </button>
+</div>
+<div class="modal-body">
+    <div class="form-group">
+        <label for="coursename">{{ 'groupAssignCourseModalName' | translate }}</label>
+        <input type="text" 
+                class="form-control mb-2" 
+                id="coursename" 
+                [(ngModel)]="courseSelector"
+                placeholder="{{ 'groupAssignCourseModalNamePlaceholder' | translate }}">
+    </div>
+    <ul class="list-group">
+    @for (course of filterCourses(); track course)
+    {
+        <li class="list-group-item" (click)="selectCourse(course)">{{ course.name }}</li>
+    }
+    </ul>
+    <hr>
+    <div class="form-group">
+        <label for="coursename">{{ 'groupAssignCourseModalNameSelected' | translate }}</label>
+        <input type="text" disabled
+            class="form-control"
+            id="selected"
+            [value]="selectedCoure?.name ?? ''"
+            placeholder="{{ 'groupAssignCourseModalNameSelect' | translate}}">
+    </div>
+</div>
+<div class="modal-footer">
+    <button type="submit" 
+            class="btn btn-success"
+            (click)="assignCourse()">
+        {{ 'groupAssignCourseModalSubmit' | translate }}
+    </button>
+</div>

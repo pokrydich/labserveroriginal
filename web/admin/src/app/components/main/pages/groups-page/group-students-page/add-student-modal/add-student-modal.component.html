@@ -1,0 +1,33 @@
+<div class="modal-header">
+    <h4 class="modal-title pull-left">{{ 'groupStudentAddModalTitle' | translate }}</h4>
+    <button type="button" class="btn-close close pull-right" aria-label="Close" (click)="bsModalRef.hide()">
+        <span aria-hidden="true" class="visually-hidden">&times;</span>
+    </button>
+</div>
+<form [formGroup]="addStudentForm">
+    <div class="modal-body">
+        <div class="form-group">
+            <label for="studentname">{{ 'groupStudentAddModalName' | translate }}</label>
+            <input type="text" 
+                    class="form-control" 
+                    id="studentname" 
+                    formControlName="studentname"
+                    placeholder="{{ 'groupStudentAddModalNamePlaceholder' | translate }}">
+        </div>
+        <div class="form-group">
+            <label for="studentemail">{{ 'groupStudentAddModalEmail' | translate }}</label>
+            <input type="text" 
+                    class="form-control" 
+                    id="studentemail" 
+                    formControlName="studentemail"
+                    placeholder="{{ 'groupStudentAddModalEmailPlaceholder' | translate }}">
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="submit" 
+                class="btn btn-success"
+                (click)="addStudent()">
+            {{ 'groupStudentAddModalSubmit' | translate }}
+        </button>
+    </div>
+</form>

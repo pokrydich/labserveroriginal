@@ -1,0 +1,22 @@
+<div class="d-flex justify-content-center vh-100 align-items-center">
+    <div class="card w-75">
+        <div class="card-header text-center text-white bg-dark">
+        {{ 'enterTokenTitle' | translate }}
+        </div>
+        <div class="card-body">
+            <form [formGroup]="tokenForm">
+                <div class="form-group">
+                    <label for="token">{{ 'tokenLabel' | translate }}</label>
+                    <input type="text" 
+                            class="form-control" 
+                            id="token" 
+                            formControlName="token"
+                            placeholder="{{ 'tokenPlaceholder' | translate }}">
+                </div>
+                <button type="submit" class="btn btn-secondary mt-2 me-auto" (click)="submitToken()">
+                    {{ 'submitTokenButton' | translate }}
+                </button>
+            </form>
+        </div>
+    </div>
+</div>

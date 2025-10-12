@@ -1,0 +1,25 @@
+<div class="modal-header">
+    <h4 class="modal-title pull-left">{{ 'groupStudentImportModalTitle' | translate }}</h4>
+    <button type="button" class="btn-close close pull-right" aria-label="Close" (click)="bsModalRef.hide()">
+        <span aria-hidden="true" class="visually-hidden">&times;</span>
+    </button>
+</div>
+<form>
+    <div class="modal-body">
+        <div class="form-group">
+            <label for="csvfile">{{ 'groupStudentImportModalFile' | translate }}</label>
+            <input type="file" 
+                    accept=".csv"
+                    class="form-control" 
+                    id="csvfile"
+                    (change)="onFileChanged($event)">
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="button" 
+                class="btn btn-success"
+                (click)="importStudents()">
+            {{ 'groupStudentImportModalSubmit' | translate }}
+        </button>
+    </div>
+</form>

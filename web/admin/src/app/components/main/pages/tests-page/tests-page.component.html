@@ -1,0 +1,40 @@
+<div class="card">
+    <div class="card-header">{{ 'testsPageHeader' | translate }}</div>
+    <div class="card-body">
+        <h5 class="card-title">{{ 'testsPageTitle' | translate }}</h5>
+        <p class="card-text">{{ 'testsPageDescription' | translate }}</p>
+        <div class="table-responsive card-table">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col">{{ 'testsPageNameColumn' | translate }}</th>
+                        <th scope="col"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (test of tests.getElements(); track test)
+                    {
+                    <tr>
+                        <td>
+                            <a>{{ test.name }}</a>
+                        </td>
+                        <td>
+                            <button class="btn btn-primary" (click)="openEditTestModal(test)">
+                                <i class="fs-5 bi-pencil-square"></i>
+                                {{ 'testsPageEditTestButton' | translate }}
+                            </button>
+                        </td>
+                    </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        <hr>
+        <div class="form-group">
+            <button class="btn btn-success" (click)="openCreateTestModal()">
+                <i class="fs-4 bi-plus"></i>
+                {{ 'testsPageNewTestButton' | translate }}
+            </button>
+        </div>
+    </div>
+</div>

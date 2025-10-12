@@ -1,0 +1,109 @@
+<div class="card">
+    <div class="card-header">
+        <a routerLink="/groups">{{ 'utilGroupsLink' | translate }}</a>
+        /
+        @if (this.group && this.course)
+        {
+            {{ this.group.name }}
+            /
+            <a routerLink="/group/{{ this.groupId }}/courses">{{ 'utilGroupCoursesLink' | translate }}</a>
+            /
+            {{ this.course.name }}
+        } 
+        @else
+        {
+            {{ 'utilTextLoading' | translate }}
+        }
+    </div>
+    <div class="card-body">
+        <h5 class="card-title">{{ 'groupCourseDetailsPageTitle' | translate }}</h5>
+        <p class="card-text">{{ 'groupCourseDetailsPageDescription' | translate: { group: group?.name ?? '', course: course?.name ?? '' } }}</p>
+
+        <div class="form-group">
+            <label for="studentsearch">{{ 'groupCourseDetailsPageStudentSearch' | translate }}</label>
+            <input type="text" class="form-control" id="studentsearch" [(ngModel)]="studentSelector"
+                placeholder="{{ 'groupCourseDetailsPageStudentSearchPlaceholder' | translate }}">
+        </div>
+
+        <div class="table-responsive overflow-auto card-table">
+            @if (groupCourse)
+            {
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col">{{ 'groupCourseDetailsStudentNameColumn' | translate }}</th>
+                        @for (courseLab of groupCourse.course!.courseLabs; track courseLab)
+                        {
+                            <th scope="col">
+                            @let groupCouresLab = getGroupCourseLab(courseLab.id!);
+                            @if (groupCouresLab)
+                            {
+                                @if (groupCouresLab.gitLabGroupId)
+                                {
+                                <i class="fs-5 bi-gitlab fc-gitlab"></i>
+                                }
+                                @else 
+                                {
+                                <i class="fs-5 bi-gitlab"></i>
+                                }
+                            } 
+                            @else 
+                            {
+                                <i class="fs-5 bi-unlock" (click)="startLab(courseLab)"></i>
+                            }
+                            {{ courseLab.name }}
+                            </th>
+                        }
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (student of getSelectedStudents(); track student)
+                    {
+                    <tr>
+                        <td>
+                            {{ student.name }}
+                        </td>
+                        @for (courseLab of groupCourse.course!.courseLabs; track courseLab)
+                        {
+                            <td>
+                            @let groupCourseLab = getGroupCourseLab(courseLab.id!);
+                            @if (groupCourseLab)
+                            {
+                                @let studentLab = getStudentLab(groupCourseLab.id!, student.id!);
+                                @if (studentLab)
+                                {
+                                    @if (studentLab.gitLabProjectId)
+                                    {
+                                        <app-student-lab-preview [studentLab]="studentLab"></app-student-lab-preview>
+                                    }
+                                    @else 
+                                    {
+                                        <i class="fs-5 bi-gitlab"></i>
+                                    }
+                                }
+                                @else 
+                                {
+                                    <i class="fs-5 bi-unlock" (click)="openStudnetLab(student, groupCourseLab)"></i>
+                                }
+                            }
+                            @else 
+                            {
+                                <i class="fs-5 bi-lock"></i>
+                            }
+                            </td>
+                        }
+                    </tr>
+                    }
+                </tbody>
+            </table>
+            }
+        </div>
+        <hr>
+        <div class="form-group">
+            <button class="btn btn-primary bg-gitlab ms-2" (click)="gitlabSync()">
+                <i class="fs-4 bi-gitlab"></i>
+                {{ 'groupCourseDetailsGitlabSyncButton' | translate }}
+            </button>
+        </div>
+    </div>
+</div>

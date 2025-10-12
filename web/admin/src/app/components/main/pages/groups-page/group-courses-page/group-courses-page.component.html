@@ -1,0 +1,58 @@
+<div class="card">
+    <div class="card-header">
+        <a routerLink="/groups">{{ 'utilGroupsLink' | translate }}</a>
+        /
+        {{ group?.name ?? 'utilTextLoading' | translate }}
+        /
+        {{ 'groupCoursesTitleGroup' | translate }}
+    </div>
+    <div class="card-body">
+        <h5 class="card-title">{{ 'groupCoursesPageTitle' | translate }}</h5>
+        <p class="card-text">{{ 'groupCoursesPageDescription' | translate: { group: group?.name ?? '' } }}</p>
+        <div class="table-responsive overflow-auto card-table">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col">{{ 'groupCoursesNameColumn' | translate }}</th>
+                        <th scope="col"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (groupCourse of groupCourses.getElements(); track groupCourse)
+                    {
+                    <tr>
+                        <td>
+                            @if (groupCourse.gitLabGroupId)
+                            {
+                            <a href="{{ makeGitLabGroupLink(groupCourse) }}" target="_blank">
+                                <i class="fs-4 bi-gitlab me-1 fc-gitlab"></i>
+                            </a>
+                            }
+                            @else
+                            {
+                                <i class="fs-4 bi-gitlab me-1"></i>
+                            }
+                            <a routerLink="/group/{{ groupCourse.groupId }}/course/{{ groupCourse.courseId }}">
+                                {{ getCourseName(groupCourse.courseId) }}
+                            </a>
+                        </td>
+                        <td>
+                        </td>
+                    </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        <hr>
+        <div class="form-group">
+            <button class="btn btn-success" (click)="openAssignCourseModal()">
+                <i class="fs-4 bi-clipboard-plus"></i>
+                {{ 'groupCoursesAssignCourseButton' | translate }}
+            </button>
+            <button class="btn btn-primary bg-gitlab ms-2" (click)="gitlabSync()">
+                <i class="fs-4 bi-gitlab"></i>
+                {{ 'groupCoursesGitlabSyncButton' | translate }}
+            </button>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,98 @@
+<div class="d-flex justify-content-center mb-3">
+    <div class="page-container">
+
+        <div class="card mt-3">
+            <div class="card-header">{{ 'mylabsHeader' | translate }}</div>
+            @if (!this.mydata)
+            {
+            {{ 'loadingMessage' | translate}}
+            }
+            @else 
+            {
+            <div class="card-body">
+                <h5 class="card-title">{{ 'accessDataTitle' | translate }}</h5>
+
+                <ul class="list-group">
+                    <li class="list-group-item">
+                        e-mail: {{ mydata.email }}
+                    </li>
+                    <li class="list-group-item">
+                        {{ 'gitlabLink' | translate }}
+                        <a href="https://git.ooplabs.ru" target="_blank">
+                            <i class="fs-5 bi-gitlab fc-gitlab"></i>
+                            GitLab
+                        </a>
+                    </li>
+                    <li class="list-group-item">
+                        <button class="btn btn-secondary" (click)="openGitLabCredsModal(gitLabCredsTemplate)">
+                            {{ 'showGitLabCredsButton' | translate }}
+                        </button>
+                    </li>
+                </ul>
+
+                <h5 class="card-title mt-3">{{ 'labsTableTitle' | translate }}</h5>
+                <p class="card-text">{{ 'labsTableDescription' | translate }}</p>
+
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th scope="col">{{ 'labsTableLabNameColumn' | translate }}</th>
+                                <th scope="col">{{ 'labsTableLabOpenedColumn' | translate }}</th>
+                                <th scope="col">{{ 'labsTableLabNotesColumn' | translate }}</th>
+                                <th scope="col">{{ 'labsTableLabStatusColumn' | translate }}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @for (lab of getLabs(); track lab)
+                            {
+                            <tr>
+                                <th scope="row"> 
+                                    <a href="{{ makeGitLabLink(lab) }}" target="_blank">
+                                        <i class="fs-5 bi-gitlab fc-gitlab"></i>
+                                        {{ getLabName(lab) }}
+                                    </a>
+                                </th>
+                                <td>
+                                    {{ getOpenedDate(lab) | date:'dd.MM.yyyy H:mm' }}
+                                </td>
+                                <td>
+                                    <button class="btn btn-primary" (click)="openNotesModal(lab.notes)">
+                                        <i class="fs-5 bi-journal-code me-1"></i> {{ 'openLabNotesButton' | translate }}
+                                    </button>   
+                                </td>
+                                <td>
+                                    <button [ngClass]="getStatusBgColor(lab.status)">{{ ('labStatus' + getStatusTranslateSuffix(lab.status)) | translate }}</button>
+                                </td>
+                            </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            }
+        </div>
+        
+    </div>
+</div>
+
+<ng-template #gitLabCredsTemplate>
+    <div class="modal-header">
+        <h4 class="modal-title pull-left">{{ 'gitLabCredsModalTitle' | translate }}</h4>
+        <button type="button" class="btn-close close pull-right" aria-label="Close" (click)="gitLabCredsModalRef?.hide()">
+        <span aria-hidden="true" class="visually-hidden">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body">
+        <ul class="list-group">
+            <li class="list-group-item">
+                {{ 'gitLabUsername' | translate }}
+                {{ mydata?.username ?? '' }}
+            </li>
+            <li class="list-group-item">
+                {{ 'gitLabPassword' | translate }}
+                {{ mydata?.initialPassword ?? '' }}
+            </li>
+        </ul>
+    </div>
+</ng-template>

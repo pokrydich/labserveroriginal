@@ -1,0 +1,16 @@
+<div class="btn-group" dropdown [dropup]="true" [isAnimated]="true">
+    <a class="d-flex align-items-center text-white text-decoration-none" 
+        dropdownToggle 
+        id="user-menu" 
+        aria-controls="user-menu-dropdown">
+            <i class="fs-3 bi-person-circle"></i>
+            <span class="d-none d-sm-inline mx-1">{{ user !== null ? user.email : 'sidebarAccountLoadingUserEmail' | translate }}</span>
+    </a>
+    <ul id="user-menu-dropdown" *dropdownMenu class="dropdown-menu dropdown-menu-dark text-small shadow">
+        <li><a routerLink="/account-settings" class="dropdown-item">{{ 'sidebarAccountSettingsButton' | translate }}</a></li>
+        <li>
+            <hr class="dropdown-divider">
+        </li>
+        <li><a class="dropdown-item text-danger" (click)="authService.logout()">{{ 'sidebarAccountLogoutButton' | translate }}</a></li>
+    </ul>
+</div>

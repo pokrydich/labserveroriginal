@@ -1,0 +1,213 @@
+{
+    "utilGroupsLink" : "Группы",
+    "utilCoursesLink" : "Курсы",
+    "utilGroupCoursesLink" : "Курсы",
+    "utilTextLoading" : "Загрузка...",
+
+
+    "apiResponseNotificationDataUpdateSuccess" : "Данные сохранены",
+    "apiResponseNotificationDataCreateSuccess" : "Операция выполнена успешно",
+
+
+    "loginTitle" : "Аутентификация",
+    "loginUsername" : "Почтовый адрес",
+    "loginUsernamePlaceholder" : "some@email.com",
+    "loginPassword" : "Пароль",
+    "loginPasswordPlaceholder" : "проль",
+    "loginLoginButton" : "Войти",
+    "loginRegisterLink" : "Регистрация",
+
+    "loginErrorEnterUsernameAndPassword" : "Укажите адрес почты и пароль для входа",
+
+
+    "registerTitle" : "Регистрация",
+    "registerUsername" : "Почтовый адрес",
+    "registerUsernamePlaceholder" : "some@email.com",
+    "registerPassword" : "Пароль",
+    "registerPasswordPlaceholder" : "пароль",
+    "registerPasswordConfirm" : "Подтверждение пароля",
+    "registerPasswordConfirmPlaceholder" : "пароль",
+    "registerRegisterButton" : "Зарегистрироваться",
+    "registerLoginLink" : "Вход",
+
+    "registerErrorEnterUsernameAndPassword" : "Введите почтовый адрес и пароль для регистрации",
+    "registerPasswordsDoNotMatch" : "Пароли не совпадают",
+    "registerSuccessful" : "Регистрация прошла успешно",
+
+
+    "sidebarTitle" : "ЛабСервер",
+
+    "sidebarCoursesLink" : "Курсы",
+    "sidebarGroupsLink" : "Группы",
+    "sidebarTestsLink" : "Тесты",
+    "sidebarUsersLink" : "Пользователи",
+
+    "sidebarAccountLoadingUserEmail" : "Загрузка...",
+    "sidebarAccountSettingsButton" : "Параметры",
+    "sidebarAccountLogoutButton" : "Выход",
+
+
+    "userPreferencesMenuTitle" : "Параметры аккаунта",
+    "userPreferencesMenuDescription" : "Управления персональными настройками.",
+    "userPreferencesLanguage" : "Язык веб-интерфейса",
+    "userPreferencesLocaleEnglish" : "Английский",
+    "userPreferencesLocaleRussian" : "Русский",
+
+
+    "usersPageHeader" : "Пользователи ЛабСервер",
+    "usersPageTitle" : "Перечень пользователей",
+    "usersPageDescription" : "Перечень зарегестрированных пользователей системы с указанием назначенных ролей.",
+
+    "usersTableEmailColumn" : "Email",
+    "usersTableRolesColumn" : "Роли",
+
+    "usersActionEditRoles" : "Изменить роли",
+
+    "usersEditRoleModalTitle" : "Изменить роли {{user}}",
+    "usersEditRoleModalApply" : "Применить",
+
+    "usersRoleBadgeAdministrator" : "Администратор",
+    "usersRoleBadgeProfessor" : "Преподаватель",
+    "usersRoleBadgeAssistant" : "Ассистент",
+    "usersRoleBadgeUnkownRole" : "НЕИЗВЕТНАЯ РОЛЬ",
+
+
+    "groupsPageHeader" : "Группы",
+    "groupsPageTitle" : "Список групп",
+    "groupsPageDescription" : "Список студенческих групп.",
+    "groupsGroupNameColumn" : "Номер группы",
+    "groupsGroupCourses" : "Курсы",
+    "groupsNewGroupButton" : "Добавить группу",
+    "groupsGitlabSyncButton" : "Синхронизация с GitLab",
+
+    "groupsCreateModalTitle" : "Добавление группы",
+    "groupsCreateModalGroupName" : "Номер группы",
+    "groupsCreateModalNamePlaceholder" : "12345/67890",
+    "groupsCreateModalSubmit" : "Добавить",
+
+
+    "groupStudentsTitleGroup" : "Студенты",
+    "groupStudentsPageTitle" : "Список стундентов",
+    "groupStudentsPageDescription" : "Список студентов группы {{ group }}.",
+    "groupStudentsNameColumn" : "ФИО",
+    "groupStudentsEmailColumn" : "e-mail",
+    "groupStudentsNewStudentButton" : "Добвать",
+    "groupStudentsUploadStudentsList" : "Импорт",
+    "groupStudentsGitlabSyncButton" : "Синхронизация с GitLab",
+    "groupStudentsEditStudentButton" : "Изменить",
+    "groupStudentsSendCredentialsButton" : "Рассылка учётных данных",
+    "groupStudentsSendCredentialsStudentButton" : "Выслать пароль",
+
+    "groupStudentAddModalTitle" : "Добавление студента",
+    "groupStudentAddModalName" : "ФИО",
+    "groupStudentAddModalNamePlaceholder" : "Иванов Иван",
+    "groupStudentAddModalEmail" : "e-mail",
+    "groupStudentAddModalEmailPlaceholder": "studnet@email.com",
+    "groupStudentAddModalSubmit" : "Добавить",
+
+    "groupStudentImportModalTitle" : "Импорт списка группы из CSV-файлов",
+    "groupStudentImportModalFile" : "CSV-файл с заголовком 'Name,Email'",
+    "groupStudentImportModalSubmit" : "Импортировать",
+
+    "groupStudentEditModalTitle" : "Студент",
+    "groupStudentEditModalName" : "ФИО",
+    "groupStudentEditModalNamePlaceholder" : "Иванов Иван",
+    "groupStudentEditModalUsername" : "Имя пользователя GitLab",
+    "groupStudentEditModalUsernamePlaceholder" : "username",
+    "groupStudentEditModalEmail" : "e-mail",
+    "groupStudentEditModalEmailPlaceholder" : "studnet@email.com",
+    "groupStudentEditModalPassword" : "Пароль GitLab (изменяется администратором GitLab)",
+    "groupStudentEditModalSubmit" : "Сохранить",
+
+
+    "groupCoursesTitleGroup" : "Курсы",
+    "groupCoursesPageTitle" : "Проходимые курсы",
+    "groupCoursesPageDescription" : "Список курсов, проходимых группой {{ group }}",
+    "groupCoursesNameColumn" : "Название курса",
+    "groupCoursesAssignCourseButton" : "Назначение курса",
+    "groupCoursesGitlabSyncButton" : "Синхронизация с GitLab",
+
+    "groupAssignCourseModalTitle" : "Назначение курса",
+    "groupAssignCourseModalName" : "Поиск курса",
+    "groupAssignCourseModalNamePlaceholder" : "физи...",
+    "groupAssignCourseModalNameSelect" : "Выбранный курс",
+    "groupAssignCourseModalNameSelected" : "Выбирите курс из списка",
+    "groupAssignCourseModalSubmit" : "Назначить",
+
+    
+    "coursesPageHeader" : "Курсы",
+    "coursesPageTitle" : "Список курсов",
+    "coursesPageDescription" : "Список доступных студенческих курсов",
+    "coursesPageNameColumn" : "Название курса",
+    "coursesPageNewCourseButton" : "Создать курс",
+
+    "coursesCreateModalTitle" : "Новый курс",
+    "coursesCreateModalName" : "Название",
+    "coursesCreateModalNamePlaceholder" : "физика",
+    "coursesCreateModalSubmit" : "Создать",
+
+
+    "courseLabsPageHeader" : "Задания по курсу",
+    "courseLabsPageTitle" : "Список заданий",
+    "courseLabsPageDescription" : "Список заданий по курсу {{ course }}",
+    "courseLabsPageNameColumn" : "Название",
+    "courseLabsPageNewLabButton" : "Создать задание",
+
+    "courseLabsCreateModalTitle" : "Создать задание",
+    "courseLabsCreateModalName" : "Название",
+    "courseLabsCreateModalNamePlaceholder" : "Лабораторная 1",
+    "courseLabsCreateModalSubmit" : "Создать",
+
+
+    "groupCourseDetailsPageTitle" : "Информация по курсу",
+    "groupCourseDetailsPageDescription" : "Информация о прохождение курса '{{ course }}' группой '{{ group }}'.",
+    "groupCourseDetailsPageStudentSearch" : "Поиск студента",
+    "groupCourseDetailsPageStudentSearchPlaceholder" : "Иванов...",
+    "groupCourseDetailsStudentNameColumn" : "ФИО студента",
+    "groupCourseDetailsGitlabSyncButton" : "Синхронизация с GitLab",
+
+
+    "studentLabPreviewLabStartPrefix" : "открыта",
+    "studentLabPriviewLastSubmissionAt" : "Последний MR от:",
+    "studentLabPreviewNoSubmissions" : "Нет MR",
+
+
+    "studentLabPageTitle" : "{{ student }}: выполнение лабораторной",
+    "studentLabPageNotesTitle" : "Заметки (для студента)",
+    "studentLabPageNotesDescription" : "Заметки для студента (будут отображены на странице студента).",
+
+    "studentLabPageStatusTitle" : "Статус",
+    "studentLabPageStatusDescription" : "Статус завершения лабораторной работы.",
+
+    "studentLabStatusInProgress" : "Выполняется",
+    "studentLabStatusOverdue" : "Просрочена",
+    "studentLabStatusCompleted" : "Принята",
+
+    "studentLabPageUpdateButton" : "Сохранить",
+
+    "studentLabPageLabSubmissionsTitle" : "Сдача лабораторной",
+    "studentLabPageLabSubmissionsDescription" : "Отправления лабораторной на проверку, выполненные студентом (GitLab мердж-запросы - MR).",
+    "studentLabPageMergeRequestTitle" : "Заголовок MR",
+    "studentLabPageMergeRequestDate" : "Дата создания MR",
+
+
+    "testsPageHeader" : "Тесты",
+    "testsPageTitle" : "Тесты для лабораторных",
+    "testsPageDescription" : "Набор тестов для лабораторных. После создания необходимо прикрепить (выдать) тест для целевой группы.",
+    "testsPageNameColumn" : "Название теста",
+    "testsPageEditTestButton" : "Изменить",
+    "testsPageNewTestButton" : "Создать",
+
+    "testCreateModalTitle" : "Создать тест",
+    "testCreateModalName" : "Наименование",
+    "testCreateModalNamePlaceholder" : "testname...",
+    "testCreateModalServerUrl" : "URL-адрес сервера тестирования",
+    "testCreateModalServerUrlPlaceholder" : "https://someserver.com/tests/1",
+
+    "testEditModalTitle" : "Изменить тест",
+    "testEditModalName" : "Наименование",
+    "testEditModalNamePlaceholder" : "testname...",
+    "testEditModalServerUrl" : "URL-адрес сервера тестирования",
+    "testEditModalServerUrlPlaceholder" : "https://someserver.com/tests/1",
+    "testEditModalSubmit" : "Сохранить изменения"
+}

@@ -1,0 +1,35 @@
+<div class="card">
+    <div class="card-header">{{ 'coursesPageHeader' | translate }}</div>
+    <div class="card-body">
+        <h5 class="card-title">{{ 'coursesPageTitle' | translate }}</h5>
+        <p class="card-text">{{ 'coursesPageDescription' | translate }}</p>
+        <div class="table-responsive card-table">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col">{{ 'coursesPageNameColumn' | translate }}</th>
+                        <th scope="col"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (course of courses.getElements(); track course)
+                    {
+                    <tr>
+                        <td>
+                            <a routerLink="/course/{{course.id}}/labs">{{ course.name }}</a>
+                        </td>
+                        <td></td>
+                    </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        <hr>
+        <div class="form-group">
+            <button class="btn btn-success" (click)="openCreateCourseModal()">
+                <i class="fs-4 bi-plus"></i>
+                {{ 'coursesPageNewCourseButton' | translate }}
+            </button>
+        </div>
+    </div>
+</div>

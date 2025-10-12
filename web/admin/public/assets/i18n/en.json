@@ -1,0 +1,213 @@
+{
+    "utilGroupsLink" : "Groups",
+    "utilCoursesLink" : "Courses",
+    "utilGroupCoursesLink" : "Courses",
+    "utilTextLoading" : "Loading...",
+
+
+    "apiResponseNotificationDataUpdateSuccess" : "Updated successfully",
+    "apiResponseNotificationDataCreateSuccess" : "Operation completed successfully",
+
+
+    "loginTitle" : "Login",
+    "loginUsername" : "Email",
+    "loginUsernamePlaceholder" : "some@email.com",
+    "loginPassword" : "Password",
+    "loginPasswordPlaceholder" : "password",
+    "loginLoginButton" : "Login",
+    "loginRegisterLink" : "Registration",
+
+    "loginErrorEnterUsernameAndPassword" : "Enter email and password",
+
+
+    "registerTitle" : "Account registration",
+    "registerUsername" : "Email address",
+    "registerUsernamePlaceholder" : "some@email.com",
+    "registerPassword" : "Password",
+    "registerPasswordPlaceholder" : "password",
+    "registerPasswordConfirm" : "Confirm password",
+    "registerPasswordConfirmPlaceholder" : "password",
+    "registerRegisterButton" : "Register",
+    "registerLoginLink" : "Login",
+
+    "registerErrorEnterUsernameAndPassword" : "Enter email address and password for registration",
+    "registerPasswordsDoNotMatch" : "Passwords do not match",
+    "registerSuccessful" : "Registered account",
+
+
+    "sidebarTitle" : "LabsServer",
+
+    "sidebarCoursesLink" : "Courses",
+    "sidebarGroupsLink" : "Groups",
+    "sidebarTestsLink" : "Tests",
+    "sidebarUsersLink" : "Users",
+
+    "sidebarAccountLoadingUserEmail" : "Loading...",
+    "sidebarAccountSettingsButton" : "Preferences",
+    "sidebarAccountLogoutButton" : "Log out",
+
+
+    "userPreferencesMenuTitle" : "Account preferences",
+    "userPreferencesMenuDescription" : "Configure account parameters",
+    "userPreferencesLanguage" : "Interface language",
+    "userPreferencesLocaleEnglish" : "English",
+    "userPreferencesLocaleRussian" : "Russian",
+
+
+    "usersPageHeader" : "LabsServer Users",
+    "usersPageTitle" : "Users list",
+    "usersPageDescription" : "List of system users and their assinged roles.",
+
+    "usersTableEmailColumn" : "Email",
+    "usersTableRolesColumn" : "Roles",
+    
+    "usersActionEditRoles" : "Edit roles",
+
+    "usersEditRoleModalTitle" : "Edit {{user}} roles",
+    "usersEditRoleModalApply" : "Apply changes",
+
+    "usersRoleBadgeAdministrator" : "Administrator",
+    "usersRoleBadgeProfessor" : "Professor",
+    "usersRoleBadgeAssistant" : "Assistant",
+    "usersRoleBadgeUnkownRole" : "UNKOWN ROLE",
+
+
+    "groupsPageHeader" : "Groups",
+    "groupsPageTitle" : "Groups list",
+    "groupsPageDescription" : "List of student groups.",
+    "groupsGroupNameColumn" : "Group",
+    "groupsGroupCourses" : "Courses",
+    "groupsNewGroupButton" : "Add group",
+    "groupsGitlabSyncButton" : "Sync with GitLab",
+
+    "groupsCreateModalTitle" : "Add new group",
+    "groupsCreateModalGroupName" : "Group number",
+    "groupsCreateModalNamePlaceholder" : "12345/67890",
+    "groupsCreateModalSubmit" : "Add",
+
+
+    "groupStudentsTitleGroup" : "Students",
+    "groupStudentsPageTitle" : "Students list",
+    "groupStudentsPageDescription" : "List of students in group {{ group }}",
+    "groupStudentsNameColumn" : "Name",
+    "groupStudentsEmailColumn" : "e-mail",
+    "groupStudentsNewStudentButton" : "Add",
+    "groupStudentsUploadStudentsList" : "Import",
+    "groupStudentsGitlabSyncButton" : "Sync with GitLab",
+    "groupStudentsEditStudentButton" : "Edit",
+    "groupStudentsSendCredentialsButton" : "Email credentials",
+    "groupStudentsSendCredentialsStudentButton" : "Send crednetials",
+
+    "groupStudentAddModalTitle" : "Add student",
+    "groupStudentAddModalName" : "Student name",
+    "groupStudentAddModalNamePlaceholder" : "John Smith",
+    "groupStudentAddModalEmail" : "Email address",
+    "groupStudentAddModalEmailPlaceholder": "studnet@email.com",
+    "groupStudentAddModalSubmit" : "Add",
+
+    "groupStudentImportModalTitle" : "Import from CSV-file",
+    "groupStudentImportModalFile" : "CSV-file with 'Name,Email' header",
+    "groupStudentImportModalSubmit" : "Import",
+
+    "groupStudentEditModalTitle" : "Student",
+    "groupStudentEditModalName" : "Student name",
+    "groupStudentEditModalNamePlaceholder" : "John Smith",
+    "groupStudentEditModalUsername" : "Student GitLab username",
+    "groupStudentEditModalUsernamePlaceholder" : "username",
+    "groupStudentEditModalEmail" : "e-mail",
+    "groupStudentEditModalEmailPlaceholder" : "studnet@email.com",
+    "groupStudentEditModalPassword" : "Student GitLab password (change via GitLab)",
+    "groupStudentEditModalSubmit" : "Save",
+
+
+    "groupCoursesTitleGroup" : "Courses",
+    "groupCoursesPageTitle" : "Assigned courses",
+    "groupCoursesPageDescription" : "List of courses assigned to group {{ group }}",
+    "groupCoursesNameColumn" : "Course name",
+    "groupCoursesAssignCourseButton" : "Assign course",
+    "groupCoursesGitlabSyncButton" : "Sync with GitLab",
+
+    "groupAssignCourseModalTitle" : "Assign course",
+    "groupAssignCourseModalName" : "Course search",
+    "groupAssignCourseModalNamePlaceholder" : "physi...",
+    "groupAssignCourseModalNameSelect" : "Selected course",
+    "groupAssignCourseModalNameSelected" : "Select course from the list",
+    "groupAssignCourseModalSubmit" : "Assign",
+
+    
+    "coursesPageHeader" : "Courses",
+    "coursesPageTitle" : "Courses list",
+    "coursesPageDescription" : "List of available courses",
+    "coursesPageNameColumn" : "Name",
+    "coursesPageNewCourseButton" : "New course",
+
+    "coursesCreateModalTitle" : "New course",
+    "coursesCreateModalName" : "Name",
+    "coursesCreateModalNamePlaceholder" : "physics",
+    "coursesCreateModalSubmit" : "Create",
+
+
+    "courseLabsPageHeader" : "Assignments",
+    "courseLabsPageTitle" : "Course assignments",
+    "courseLabsPageDescription" : "List of practive assignments for course {{ course }}",
+    "courseLabsPageNameColumn" : "Assignment name",
+    "courseLabsPageNewLabButton" : "Create assignment",
+
+    "courseLabsCreateModalTitle" : "Create assignment",
+    "courseLabsCreateModalName" : "Name",
+    "courseLabsCreateModalNamePlaceholder" : "First assignment",
+    "courseLabsCreateModalSubmit" : "Create",
+
+
+    "groupCourseDetailsPageTitle" : "Course details",
+    "groupCourseDetailsPageDescription" : "Infomration about '{{ course }}' course progress for group {{ group }}",
+    "groupCourseDetailsPageStudentSearch" : "Student search",
+    "groupCourseDetailsPageStudentSearchPlaceholder" : "John...",
+    "groupCourseDetailsStudentNameColumn" : "Student name",
+    "groupCourseDetailsGitlabSyncButton" : "Sync with GitLab",
+
+
+    "studentLabPreviewLabStartPrefix" : "opened",
+    "studentLabPriviewLastSubmissionAt" : "Last MR at:",
+    "studentLabPreviewNoSubmissions" : "No MR",
+
+
+    "studentLabPageTitle" : "{{ student }} lab progress",
+    "studentLabPageNotesTitle" : "Notes",
+    "studentLabPageNotesDescription" : "Notes for student (will be shown on student dashboard)",
+
+    "studentLabPageStatusTitle" : "Lab status",
+    "studentLabPageStatusDescription" : "Lab completion status",
+
+    "studentLabStatusInProgress" : "In progress",
+    "studentLabStatusOverdue" : "Overdue",
+    "studentLabStatusCompleted" : "Completed",
+
+    "studentLabPageUpdateButton" : "Update",
+
+    "studentLabPageLabSubmissionsTitle" : "Lab submissions",
+    "studentLabPageLabSubmissionsDescription" : "Student lab submissions (GitLab merge requests).",
+    "studentLabPageMergeRequestTitle" : "MR title",
+    "studentLabPageMergeRequestDate" : "MR date",
+
+
+    "testsPageHeader" : "Tests",
+    "testsPageTitle" : "Lab tests",
+    "testsPageDescription" : "List of tests for lab assignments",
+    "testsPageNameColumn" : "Test name",
+    "testsPageEditTestButton" : "Edit",
+    "testsPageNewTestButton" : "New",
+
+    "testCreateModalTitle" : "New test",
+    "testCreateModalName" : "Nname",
+    "testCreateModalNamePlaceholder" : "testname...",
+    "testCreateModalServerUrl" : "Test server URL",
+    "testCreateModalServerUrlPlaceholder" : "https://someserver.com/tests/1",
+
+    "testEditModalTitle" : "Edit test",
+    "testEditModalName" : "Nname",
+    "testEditModalNamePlaceholder" : "testname...",
+    "testEditModalServerUrl" : "Test server URL",
+    "testEditModalServerUrlPlaceholder" : "https://someserver.com/tests/1",
+    "testEditModalSubmit" : "Save"
+}

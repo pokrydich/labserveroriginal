@@ -1,0 +1,38 @@
+{
+    "loadingMessage" : "Загрузка...",
+    
+    "enterTokenTitle" : "Аутентификация",
+    "tokenLabel" : "Токен входа",
+    "tokenPlaceholder" : "abcde123...",
+    "submitTokenButton" : "Войти",
+
+
+    "errorTitle" : "Ошибка",
+    "authError" : "Доступ запрещён",
+
+
+    "mylabsHeader" : "Мои лабораторные",
+    "accessDataTitle" : "Учётные данные",
+    "gitlabLink" : "Ссылка на GitLab: ",
+    "showGitLabCredsButton" : "Показать учётные данные GitLab",
+    "gitLabCredsModalTitle" : "Учётные данные GitLab",
+    "gitLabUsername" : "Логин: ",
+    "gitLabPassword" : "Пароль: ",
+    
+
+    "labsTableTitle" : "Лабораторные",
+    "labsTableDescription" : "Список открытых лабораторных",
+
+    "labsTableLabNameColumn" : "Название",
+    "labsTableLabOpenedColumn" : "Дата открытия",
+    "labsTableLabNotesColumn" : "Замечания",
+    "labsTableLabStatusColumn" : "Статус",
+    "labsTableLabSubmissionsColumn" : "Merge-запросы",
+
+    "openLabNotesButton" : "Показать",
+    "labNotesModalTitle" : "Замечания",
+
+    "labStatusComplete" : "Принята",
+    "labStatusInProgress" : "Выполняется",
+    "labStatusOverdue" : "Пропущен дедлайн"
+}
