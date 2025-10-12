@@ -11,6 +11,8 @@ services:
       options:
         max-size: "512k"
         max-file: 16
+    networks:
+      - gitlab_net
 
   webserver:
     image: nginx:latest
@@ -25,6 +27,8 @@ services:
       options:
         max-size: "512k"
         max-file: 16
+    networks:
+      - gitlab_net
 
   db:
     image: postgres
@@ -40,6 +44,8 @@ services:
       options:
         max-size: "512k"
         max-file: 16
+    networks:
+      - gitlab_net
 
   gitlab:
     image: gitlab/gitlab-ce:latest
@@ -48,7 +54,6 @@ services:
     hostname: 'git.labserver.local'
     environment:
       GITLAB_OMNIBUS_CONFIG: |
-        # Add any other gitlab.rb configuration here, each on its own line
         external_url 'http://git.labserver.local'
         nginx['redirect_http_to_https'] = false
         letsencrypt['enable'] = false
@@ -64,7 +69,10 @@ services:
       options:
         max-size: "512k"
         max-file: 16
-
+    networks:
+      gitlab_net:
+        aliases:
+          - git.labserver.local
   gitlab-runner:
     image: gitlab/gitlab-runner:latest
     container_name: gitlab-runner
@@ -79,3 +87,10 @@ services:
       options:
         max-size: "512k"
         max-file: 16
+    networks:
+      - gitlab_net
+
+networks:
+  gitlab_net:
+    driver: bridge
+    external: true
