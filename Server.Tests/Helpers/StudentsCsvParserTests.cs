@@ -1,5 +1,6 @@
 namespace LabServer.Server.Tests.Helpers;
 
+using CsvHelper;
 using LabServer.Server.Helpers;
 
 public class StudentsCsvParserTests
@@ -38,6 +39,6 @@ public class StudentsCsvParserTests
     public void Parse_Throws_WhenEmailColumnMissing()
     {
         var raw = "Value1,Value2\nAnother,Row";
-        Assert.Throws<NotImplementedException>(() => StudentsCsvParser.Parse(raw));
+        Assert.Throws<MissingFieldException>(() => StudentsCsvParser.Parse(raw));
     }
 }

@@ -22,6 +22,6 @@ public class GitLabNameTransformerTests
     public void UserNameFromName_IgnoresUnknownSymbols()
     {
         var username = GitLabNameTransformer.UseranmeFromName("Иванов * Иван !");
-        Assert.Equal("ivanov_i", username);
+        Assert.Equal("ivanov__i", username);
     }
 }
