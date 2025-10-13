@@ -66,7 +66,7 @@ integration_test:
       docker compose -f compose.yml -f compose.integration-ci.yml run --rm tests
       dotnet test Server.IntegrationTests/Server.IntegrationTests.csproj
       --configuration Release
-      --filter "FullyQualifiedName~Server.IntegrationTests.Database"
+      --filter "FullyQualifiedName~Server.IntegrationTests.Database|FullyQualifiedName~Server.IntegrationTests.Api"
       --logger "trx;LogFileName=/workspace/TestResults/integration.trx"
 
   after_script:
