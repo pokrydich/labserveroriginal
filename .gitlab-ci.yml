@@ -1,6 +1,6 @@
 stages:
   - build
-  - test
+  - unit_test
 
 variables:
   DOTNET_SKIP_FIRST_TIME_EXPERIENCE: "true"
@@ -13,8 +13,8 @@ build:
     - dotnet restore
     - dotnet build --configuration Release
 
-test:
-  stage: test
+unit_test:
+  stage: unit_test
   image: mcr.microsoft.com/dotnet/sdk:9.0
   script:
     - >
