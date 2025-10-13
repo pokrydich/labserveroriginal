@@ -46,7 +46,7 @@ integration_test:
     - docker compose -f compose.yml -f compose.integration-ci.yml build webserver labserver
 
     # Поднимаем зависимости и приложения
-    - docker compose -f compose.yml -f compose.integration-ci.yml up -d db webserver labserver
+    - docker compose -f compose.yml -f compose.integration-ci.yml up -d db webserver labserver gitlab
 
     # === readiness: проверяем именно FQDN и /health ===
     - docker compose -f compose.yml -f compose.integration-ci.yml run --rm tests getent hosts admin.labserver.local
