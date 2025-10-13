@@ -1,5 +1,4 @@
 stages:
-  - build
   - integration_test
 
 variables:
@@ -11,13 +10,6 @@ variables:
   LABSERVER_NGINX_BASE: "http://admin.labserver.local/"
   LABSERVER_GITLAB_BASE: "http://git.labserver.local/"
   LABSERVER_DB_CONNECTION: "Host=db;Port=5432;Database=labs;Username=postgres;Password=123456;Timeout=10"
-
-build:
-  stage: build
-  image: mcr.microsoft.com/dotnet/sdk:9.0
-  script:
-    - dotnet restore
-    - dotnet build --configuration Release
 
 integration_test:
   stage: integration_test
