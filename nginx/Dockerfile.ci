@@ -1,24 +1,19 @@
 # ---------- ЭТАП 1: сборка фронта (admin + dashboard) ----------
 FROM node:20-alpine AS fe-build
 
-# чуть полезных утилит
+# Немного утилит
 RUN apk add --no-cache bash git
-
-# включим corepack (если в проектах pnpm/yarn) — не критично
 RUN corepack enable || true
 
-# СБОРКА ADMIN
+# --- ADMIN ---
 WORKDIR /src/web/admin
-# сначала только package* — для кеша зависимостей
 COPY web/admin/package*.json ./
 RUN npm ci
-# Angular CLI: если он не в devDependencies, установим глобально
 RUN npm i -g @angular/cli
-# теперь весь исходник и сборка
 COPY web/admin/ ./
 RUN ng build --output-path /out/admin
 
-# СБОРКА DASHBOARD
+# --- DASHBOARD ---
 WORKDIR /src/web/dashboard
 COPY web/dashboard/package*.json ./
 RUN npm ci
@@ -28,18 +23,24 @@ RUN ng build --output-path /out/dashboard
 # ---------- ЭТАП 2: финальный образ Nginx ----------
 FROM nginx:latest
 
-# Копируем твои nginx-конфиги и сайты
-# ВАЖНО: все файлы server-block должны иметь расширение .conf
-COPY nginx/conf/  /etc/nginx/conf.d/
-# Кладём собранные SPA бандлы
+# 0) Чистим дефолтный конфиг из базового образа (важно)
+RUN rm -f /etc/nginx/conf.d/default.conf || true
+
+# 1) Копируем твои конфиги виртуальных хостов (*.conf обязательно)
+COPY nginx/conf/ /etc/nginx/conf.d/
+
+# 2) Кладём собранные SPA-бандлы
 COPY --from=fe-build /out/ /var/www/sites/
 
-# Подстраховка: дефолтный server, чтобы :80 точно слушался даже при пустых конфигах
+# 3) Подстраховка: минимальный дефолтный сервер и /health
+#    (не конфликтует с именными vhost'ами admin.labserver.local и т.д.)
 RUN printf "server {\n\
   listen 80;\n\
   server_name _;\n\
   location /health { return 200 'ok'; add_header Content-Type text/plain; }\n\
 }\n" > /etc/nginx/conf.d/000-default.conf
 
-# Запуск nginx в форграунде
+# По желанию:
+# EXPOSE 80
+
 CMD ["nginx", "-g", "daemon off;"]
