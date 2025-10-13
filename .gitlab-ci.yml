@@ -1,6 +1,7 @@
 stages:
   - build
   - unit_test
+  - integration_test
 
 variables:
   DOTNET_SKIP_FIRST_TIME_EXPERIENCE: "true"
@@ -32,3 +33,41 @@ unit_test:
       coverage_report:
         coverage_format: cobertura
         path: TestResults/coverage.cobertura.xml
+
+integration_test:
+  stage: integration_test
+  image: docker:25.0.4
+  services:
+    - name: docker:25.0.4-dind
+      command: ["--tls=false"]
+  variables:
+    DOCKER_HOST: tcp://docker:2375
+    DOCKER_TLS_CERTDIR: ""
+    COMPOSE_PROJECT_NAME: labserverintegration
+    LABSERVER_API_BASE: http://webserver:80/
+    LABSERVER_NGINX_BASE: http://webserver:80/
+    LABSERVER_DB_CONNECTION: Host=db;Port=5432;Database=labs;Username=postgres;Password=123456;Timeout=10
+    LABSERVER_GITLAB_BASE: http://gitlab:80/
+  before_script:
+    - apk add --no-cache curl docker-cli-compose
+    - docker compose -f compose.yml -f compose.integration-ci.yml up -d db labserver webserver gitlab
+    - echo "Giving services time to initialize..."
+    - sleep 180
+  script:
+    - mkdir -p TestResults
+    - docker run --rm \
+        --network labserverintegration_integration_net \
+        -v "$PWD":/workspace \
+        -w /workspace \
+        -e LABSERVER_API_BASE=${LABSERVER_API_BASE} \
+        -e LABSERVER_NGINX_BASE=${LABSERVER_NGINX_BASE} \
+        -e LABSERVER_DB_CONNECTION="${LABSERVER_DB_CONNECTION}" \
+        -e LABSERVER_GITLAB_BASE=${LABSERVER_GITLAB_BASE} \
+        mcr.microsoft.com/dotnet/sdk:9.0 \
+        dotnet test Server.IntegrationTests/Server.IntegrationTests.csproj --configuration Release --logger "trx;LogFileName=/workspace/TestResults/integration.trx"
+  after_script:
+    - docker compose -f compose.yml -f compose.integration-ci.yml down
+  artifacts:
+    when: always
+    paths:
+      - TestResults/

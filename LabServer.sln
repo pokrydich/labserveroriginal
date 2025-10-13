@@ -10,6 +10,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GitLabClient", "GitLabClien
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LabServer.Server.Tests", "Server.Tests\LabServer.Server.Tests.csproj", "{CFA3FC78-3C54-42E6-9E4C-00D2C28C75AB}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Server.IntegrationTests", "Server.IntegrationTests\Server.IntegrationTests.csproj", "{63F9273C-37B5-4A04-8D25-CA9D436839CA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -78,8 +80,20 @@ Global
 		{CFA3FC78-3C54-42E6-9E4C-00D2C28C75AB}.Release|Any CPU.Build.0 = Release|Any CPU
 		{CFA3FC78-3C54-42E6-9E4C-00D2C28C75AB}.Release|x64.ActiveCfg = Release|Any CPU
 		{CFA3FC78-3C54-42E6-9E4C-00D2C28C75AB}.Release|x64.Build.0 = Release|Any CPU
-		{CFA3FC78-3C54-42E6-9E4C-00D2C28C75AB}.Release|x86.ActiveCfg = Release|Any CPU
-		{CFA3FC78-3C54-42E6-9E4C-00D2C28C75AB}.Release|x86.Build.0 = Release|Any CPU
+	{CFA3FC78-3C54-42E6-9E4C-00D2C28C75AB}.Release|x86.ActiveCfg = Release|Any CPU
+	{CFA3FC78-3C54-42E6-9E4C-00D2C28C75AB}.Release|x86.Build.0 = Release|Any CPU
+	{63F9273C-37B5-4A04-8D25-CA9D436839CA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+	{63F9273C-37B5-4A04-8D25-CA9D436839CA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+	{63F9273C-37B5-4A04-8D25-CA9D436839CA}.Debug|x64.ActiveCfg = Debug|Any CPU
+	{63F9273C-37B5-4A04-8D25-CA9D436839CA}.Debug|x64.Build.0 = Debug|Any CPU
+	{63F9273C-37B5-4A04-8D25-CA9D436839CA}.Debug|x86.ActiveCfg = Debug|Any CPU
+	{63F9273C-37B5-4A04-8D25-CA9D436839CA}.Debug|x86.Build.0 = Debug|Any CPU
+	{63F9273C-37B5-4A04-8D25-CA9D436839CA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+	{63F9273C-37B5-4A04-8D25-CA9D436839CA}.Release|Any CPU.Build.0 = Release|Any CPU
+	{63F9273C-37B5-4A04-8D25-CA9D436839CA}.Release|x64.ActiveCfg = Release|Any CPU
+	{63F9273C-37B5-4A04-8D25-CA9D436839CA}.Release|x64.Build.0 = Release|Any CPU
+	{63F9273C-37B5-4A04-8D25-CA9D436839CA}.Release|x86.ActiveCfg = Release|Any CPU
+	{63F9273C-37B5-4A04-8D25-CA9D436839CA}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
