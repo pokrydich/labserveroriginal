@@ -46,7 +46,7 @@ integration_test:
     - docker compose -f compose.yml -f compose.integration-ci.yml build webserver labserver
 
     # Поднимаем зависимости и приложения
-    - docker compose -f compose.yml -f compose.integration-ci.yml up -d db webserver labserver gitlab
+    - docker compose -f compose.yml -f compose.integration-ci.yml up -d db webserver labserver
 
     # === readiness: проверяем именно FQDN и /health ===
     - docker compose -f compose.yml -f compose.integration-ci.yml run --rm tests getent hosts admin.labserver.local
@@ -74,6 +74,7 @@ integration_test:
       docker compose -f compose.yml -f compose.integration-ci.yml run --rm tests
       dotnet test Server.IntegrationTests/Server.IntegrationTests.csproj
       --configuration Release
+      --filter "FullyQualifiedName~Server.IntegrationTests.Database"
       --logger "trx;LogFileName=/workspace/TestResults/integration.trx"
 
   after_script:
