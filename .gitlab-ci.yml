@@ -10,7 +10,7 @@ variables:
   # используем домены, как у nginx/gitlab vhost
   LABSERVER_API_BASE:   "http://admin.labserver.local/"
   LABSERVER_NGINX_BASE: "http://admin.labserver.local/"
-  LABSERVER_GITLAB_BASE:"http://git.labserver.local/"
+  LABSERVER_GITLAB_BASE: "http://git.labserver.local/"
   LABSERVER_DB_CONNECTION: "Host=db;Port=5432;Database=labs;Username=postgres;Password=123456;Timeout=10"
 
 build:
@@ -23,12 +23,10 @@ build:
 integration_test:
   stage: integration_test
   image: docker:25.0.4
-  privileged: true
   services:
     - name: docker:25.0.4-dind
       alias: docker
       command: ["--host=tcp://0.0.0.0:2375", "--tls=false"]
-      privileged: true
   variables:
     DOCKER_HOST: tcp://docker:2375
     DOCKER_TLS_CERTDIR: ""
