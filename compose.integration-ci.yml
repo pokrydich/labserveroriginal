@@ -1,25 +1,11 @@
 services:
   labserver:
-    networks:
-      - integration_net
-  webserver:
-    networks:
-      - integration_net
-    ports:
-      - 80:80
-  db:
-    networks:
-      - integration_net
-    ports:
-      - 5432:5432
-  gitlab:
-    networks:
-      integration_net:
-        aliases:
-          - git.labserver.local
-    ports:
-      - 8080:80
 
-networks:
-  integration_net:
-    driver: bridge
+  webserver:
+    ports: []
+
+  db:
+    ports: []
+
+  gitlab:
+    ports: []

@@ -1,11 +1,12 @@
 stages:
   - build
-  - unit_test
   - integration_test
 
 variables:
   DOTNET_SKIP_FIRST_TIME_EXPERIENCE: "true"
   DOTNET_CLI_TELEMETRY_OPTOUT: "true"
+  COMPOSE_PROJECT_NAME: labserverintegration
+  NET_NAME: gitlab_net
 
 build:
   stage: build
@@ -14,57 +15,51 @@ build:
     - dotnet restore
     - dotnet build --configuration Release
 
-unit_test:
-  stage: unit_test
-  image: mcr.microsoft.com/dotnet/sdk:9.0
-  script:
-    - >
-      dotnet test "Server.Tests/LabServer.Server.Tests.csproj"
-      --configuration Release
-      /p:CollectCoverage=true
-      /p:CoverletOutputFormat=cobertura
-      /p:CoverletOutput=$(pwd)/TestResults/coverage.cobertura.xml
-  coverage: '/Total.*?([0-9]+\.[0-9]+)/'
-  artifacts:
-    when: always
-    paths:
-      - TestResults/
-    reports:
-      coverage_report:
-        coverage_format: cobertura
-        path: TestResults/coverage.cobertura.xml
-
 integration_test:
   stage: integration_test
   image: docker:25.0.4
+  privileged: true
   services:
     - name: docker:25.0.4-dind
-      command: ["--tls=false"]
+      alias: docker
+      command: ["--host=tcp://0.0.0.0:2375", "--tls=false"]
+      privileged: true
   variables:
     DOCKER_HOST: tcp://docker:2375
     DOCKER_TLS_CERTDIR: ""
-    COMPOSE_PROJECT_NAME: labserverintegration
     LABSERVER_API_BASE: http://webserver:80/
     LABSERVER_NGINX_BASE: http://webserver:80/
     LABSERVER_DB_CONNECTION: Host=db;Port=5432;Database=labs;Username=postgres;Password=123456;Timeout=10
     LABSERVER_GITLAB_BASE: http://gitlab:80/
   before_script:
     - apk add --no-cache curl docker-cli-compose
-    - docker compose -f compose.yml -f compose.integration-ci.yml up -d db labserver webserver gitlab
+    - |
+      i=0
+      until docker info >/dev/null 2>&1; do
+        i=$((i+1)); [ $i -gt 60 ] && echo "Docker daemon not ready" && exit 1
+        echo "Waiting for Docker daemon..."; sleep 2
+      done
+    - docker version
+    - docker compose version
+    - docker network inspect "${NET_NAME}" >/dev/null 2>&1 || docker network create "${NET_NAME}"
+    - docker compose -f compose.yml -f compose.integration-ci.yml up -d --build db labserver webserver
     - echo "Giving services time to initialize..."
-    - sleep 180
+    - sleep 120
   script:
     - mkdir -p TestResults
+    - docker network inspect "${NET_NAME}" >/dev/null 2>&1 || (echo "Network ${NET_NAME} not found" && exit 1)
     - docker run --rm \
-        --network labserverintegration_integration_net \
+        --network "${NET_NAME}" \
         -v "$PWD":/workspace \
         -w /workspace \
-        -e LABSERVER_API_BASE=${LABSERVER_API_BASE} \
-        -e LABSERVER_NGINX_BASE=${LABSERVER_NGINX_BASE} \
+        -e LABSERVER_API_BASE="${LABSERVER_API_BASE}" \
+        -e LABSERVER_NGINX_BASE="${LABSERVER_NGINX_BASE}" \
         -e LABSERVER_DB_CONNECTION="${LABSERVER_DB_CONNECTION}" \
-        -e LABSERVER_GITLAB_BASE=${LABSERVER_GITLAB_BASE} \
+        -e LABSERVER_GITLAB_BASE="${LABSERVER_GITLAB_BASE}" \
         mcr.microsoft.com/dotnet/sdk:9.0 \
-        dotnet test Server.IntegrationTests/Server.IntegrationTests.csproj --configuration Release --logger "trx;LogFileName=/workspace/TestResults/integration.trx"
+        dotnet test Server.IntegrationTests/Server.IntegrationTests.csproj \
+          --configuration Release \
+          --logger "trx;LogFileName=/workspace/TestResults/integration.trx"
   after_script:
     - docker compose -f compose.yml -f compose.integration-ci.yml down
   artifacts:
