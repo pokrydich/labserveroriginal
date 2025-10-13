@@ -42,22 +42,23 @@ integration_test:
     - docker network inspect "${NET_NAME}" >/dev/null 2>&1 || docker network create "${NET_NAME}"
     - docker compose -f compose.yml -f compose.integration-ci.yml up -d --build db labserver webserver
     - echo "Giving services time to initialize..."
-    - sleep 120
+    - sleep 80
   script:
-    - mkdir -p TestResults
-    - docker network inspect "${NET_NAME}" >/dev/null 2>&1 || (echo "Network ${NET_NAME} not found" && exit 1)
-    - docker run --rm \
-        --network "${NET_NAME}" \
-        -v "$PWD":/workspace \
-        -w /workspace \
-        -e LABSERVER_API_BASE="${LABSERVER_API_BASE}" \
-        -e LABSERVER_NGINX_BASE="${LABSERVER_NGINX_BASE}" \
-        -e LABSERVER_DB_CONNECTION="${LABSERVER_DB_CONNECTION}" \
-        -e LABSERVER_GITLAB_BASE="${LABSERVER_GITLAB_BASE}" \
-        mcr.microsoft.com/dotnet/sdk:9.0 \
-        dotnet test Server.IntegrationTests/Server.IntegrationTests.csproj \
-          --configuration Release \
-          --logger "trx;LogFileName=/workspace/TestResults/integration.trx"
+  - mkdir -p TestResults
+  - docker network inspect "${NET_NAME}" >/dev/null 2>&1 || docker network create "${NET_NAME}"
+  - >
+    docker run --rm
+    --network "${NET_NAME}"
+    -v "$PWD":/workspace
+    -w /workspace
+    -e LABSERVER_API_BASE="${LABSERVER_API_BASE}"
+    -e LABSERVER_NGINX_BASE="${LABSERVER_NGINX_BASE}"
+    -e LABSERVER_DB_CONNECTION="${LABSERVER_DB_CONNECTION}"
+    -e LABSERVER_GITLAB_BASE="${LABSERVER_GITLAB_BASE}"
+    mcr.microsoft.com/dotnet/sdk:9.0
+    dotnet test Server.IntegrationTests/Server.IntegrationTests.csproj
+    --configuration Release
+    --logger "trx;LogFileName=/workspace/TestResults/integration.trx"
   after_script:
     - docker compose -f compose.yml -f compose.integration-ci.yml down
   artifacts:
