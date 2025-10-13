@@ -1,5 +1,5 @@
 services:
-  labserver:
+  labserver: {}
 
   webserver:
     ports: []
@@ -21,3 +21,16 @@ services:
           - gitlab
           - git.labserver.local
           - labserver.local
+
+  tests:
+    image: mcr.microsoft.com/dotnet/sdk:9.0
+    working_dir: /workspace
+    volumes:
+      - ./:/workspace
+    environment:
+      LABSERVER_API_BASE:   ${LABSERVER_API_BASE}
+      LABSERVER_NGINX_BASE: ${LABSERVER_NGINX_BASE}
+      LABSERVER_DB_CONNECTION: ${LABSERVER_DB_CONNECTION}
+      LABSERVER_GITLAB_BASE: ${LABSERVER_GITLAB_BASE}
+    networks:
+      - gitlab_net

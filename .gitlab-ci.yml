@@ -37,15 +37,19 @@ integration_test:
         i=$((i+1)); [ $i -gt 60 ] && echo "Docker daemon not ready" && exit 1
         echo "Waiting for Docker daemon..."; sleep 2
       done
-    - docker version
     - docker compose version
+    # Создаём внешнюю сеть внутри dind-демона (важно!)
     - docker network inspect "${NET_NAME}" >/dev/null 2>&1 || docker network create "${NET_NAME}"
-    - docker compose -f compose.yml -f compose.integration-ci.yml up -d --build db labserver webserver gitlab
+    # Поднимаем то же, что у тебя
+    - docker compose -f compose.yml -f compose.integration-ci.yml up -d --build db labserver webserver
+
+    # === Новые readiness-пробы: реальный DNS-алиас ===
+    - docker compose run --rm tests getent hosts admin.labserver.local
     - |
       echo "Waiting for admin.labserver.local ..."
       for i in $(seq 1 180); do
-        if docker run --rm --network "${NET_NAME}" curlimages/curl:8.10.1 \
-             -fsS -o /dev/null -H 'Host: admin.labserver.local' http://webserver:80/; then
+        if docker compose run --rm tests \
+             curl -fsS -o /dev/null http://admin.labserver.local/; then
           echo "admin.labserver.local is ready"; break
         fi
         sleep 2
@@ -56,39 +60,19 @@ integration_test:
           exit 1
         fi
       done
-    - |
-      echo "Waiting for git.labserver.local ..."
-      for i in $(seq 1 300); do
-        if docker run --rm --network "${NET_NAME}" curlimages/curl:8.10.1 \
-             -fsS -o /dev/null -H 'Host: git.labserver.local' http://gitlab:80/; then
-          echo "git.labserver.local is reachable"; break
-        fi
-        sleep 3
-        if [ $i -eq 300 ]; then
-          echo "git.labserver.local NOT reachable"
-          docker ps
-          docker logs $(docker compose ps -q gitlab) | tail -n 200 || true
-          exit 1
-        fi
-      done
+
   script:
-  - mkdir -p TestResults
-  - docker network inspect "${NET_NAME}" >/dev/null 2>&1 || docker network create "${NET_NAME}"
-  - >
-    docker run --rm
-    --network "${NET_NAME}"
-    -v "$PWD":/workspace
-    -w /workspace
-    -e LABSERVER_API_BASE="${LABSERVER_API_BASE}"
-    -e LABSERVER_NGINX_BASE="${LABSERVER_NGINX_BASE}"
-    -e LABSERVER_DB_CONNECTION="${LABSERVER_DB_CONNECTION}"
-    -e LABSERVER_GITLAB_BASE="${LABSERVER_GITLAB_BASE}"
-    mcr.microsoft.com/dotnet/sdk:9.0
-    dotnet test Server.IntegrationTests/Server.IntegrationTests.csproj
-    --configuration Release
-    --logger "trx;LogFileName=/workspace/TestResults/integration.trx"
+    - mkdir -p TestResults
+    # Запускаем тесты из сервиса `tests` (будут в той же сети и с alias’ами)
+    - >
+      docker compose -f compose.yml -f compose.integration-ci.yml run --rm tests
+      dotnet test Server.IntegrationTests/Server.IntegrationTests.csproj
+      --configuration Release
+      --logger "trx;LogFileName=/workspace/TestResults/integration.trx"
+
   after_script:
     - docker compose -f compose.yml -f compose.integration-ci.yml down
+
   artifacts:
     when: always
     paths:
