@@ -38,32 +38,38 @@ integration_test:
         echo "Waiting for Docker daemon..."; sleep 2
       done
     - docker compose version
-    # Создаём внешнюю сеть внутри dind-демона (важно!)
-    - docker network inspect "${NET_NAME}" >/dev/null 2>&1 || docker network create "${NET_NAME}"
-    # Поднимаем то же, что у тебя
-    - docker compose -f compose.yml -f compose.integration-ci.yml up -d --build db labserver webserver
 
-    # === Новые readiness-пробы: реальный DNS-алиас ===
-    - docker compose run --rm tests getent hosts admin.labserver.local
+    # Сеть должна существовать внутри dind
+    - docker network inspect "${NET_NAME}" >/dev/null 2>&1 || docker network create "${NET_NAME}"
+
+    # Собираем образы (nginx с фронтом и конфигами, labserver)
+    - docker compose -f compose.yml -f compose.integration-ci.yml build webserver labserver
+
+    # Поднимаем зависимости и приложения
+    - docker compose -f compose.yml -f compose.integration-ci.yml up -d db webserver labserver
+
+    # === readiness: проверяем именно FQDN и /health ===
+    - docker compose -f compose.yml -f compose.integration-ci.yml run --rm tests getent hosts admin.labserver.local
     - |
       echo "Waiting for admin.labserver.local ..."
-      for i in $(seq 1 180); do
-        if docker compose run --rm tests \
-             curl -fsS -o /dev/null http://admin.labserver.local/; then
+      for i in $(seq 1 120); do
+        if docker compose -f compose.yml -f compose.integration-ci.yml run --rm tests \
+             curl -fsS -o /dev/null http://admin.labserver.local/health; then
           echo "admin.labserver.local is ready"; break
         fi
         sleep 2
-        if [ $i -eq 180 ]; then
+        if [ $i -eq 120 ]; then
           echo "admin.labserver.local NOT ready"
-          docker ps
-          docker logs $(docker compose ps -q webserver) | tail -n 200 || true
+          docker compose -f compose.yml -f compose.integration-ci.yml ps
+          docker logs $(docker compose -f compose.yml -f compose.integration-ci.yml ps -q webserver) | tail -n 200 || true
+          docker compose -f compose.yml -f compose.integration-ci.yml exec -T webserver sh -lc '(ss -ltn 2>/dev/null || netstat -ltn 2>/dev/null) | grep ":80" || true; nginx -T | sed -n "1,160p"'
           exit 1
         fi
       done
 
   script:
     - mkdir -p TestResults
-    # Запускаем тесты из сервиса `tests` (будут в той же сети и с alias’ами)
+    # Запускаем тесты из сервиса `tests` (та же сеть/алиасы)
     - >
       docker compose -f compose.yml -f compose.integration-ci.yml run --rm tests
       dotnet test Server.IntegrationTests/Server.IntegrationTests.csproj

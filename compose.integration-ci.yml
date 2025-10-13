@@ -1,20 +1,44 @@
 services:
-  labserver: {}
+  labserver:
+    # В CI не монтируем appsettings.json — всё через ENV/образ
+    volumes: []                               # важно
+    environment:
+      ASPNETCORE_URLS: "http://0.0.0.0:5288"  # сервер слушает 5288 (см. твой Dockerfile)
+      # ↓ при необходимости раскомментируй и подставь свои значения:
+      # ConnectionStrings__Default: "Host=db;Port=5432;Database=labs;Username=postgres;Password=123456"
+      # GitLab__BaseUrl: "http://git.labserver.local"
+      # GitLab__AuthToken: "dummy-token-or-variable"
+      # ASPNETCORE_ENVIRONMENT: "Development"
+    networks:
+      - gitlab_net
 
   webserver:
-    ports: []
+    # Собираем образ Nginx с «выпеченными» конфигами и собранным фронтом
+    build:
+      context: .
+      dockerfile: nginx/Dockerfile.ci
+    volumes: []                               # никаких runtime volumes в CI
     networks:
       gitlab_net:
         aliases:
           - webserver
           - admin.labserver.local
           - my.labserver.local
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost/health || exit 1"]
+      interval: 5s
+      timeout: 2s
+      retries: 40
+      start_period: 10s
+    # (опционально) ускорит старт последовательностью, но не обязателен:
+    # depends_on:
+    #   - labserver
 
   db:
-    ports: []
+    ports: []            # в CI не публикуем наружу
 
   gitlab:
-    ports: []
+    ports: []            # в CI не публикуем наружу
     networks:
       gitlab_net:
         aliases:
@@ -28,9 +52,9 @@ services:
     volumes:
       - ./:/workspace
     environment:
-      LABSERVER_API_BASE:   ${LABSERVER_API_BASE}
-      LABSERVER_NGINX_BASE: ${LABSERVER_NGINX_BASE}
-      LABSERVER_DB_CONNECTION: ${LABSERVER_DB_CONNECTION}
-      LABSERVER_GITLAB_BASE: ${LABSERVER_GITLAB_BASE}
+      LABSERVER_API_BASE:       ${LABSERVER_API_BASE}
+      LABSERVER_NGINX_BASE:     ${LABSERVER_NGINX_BASE}
+      LABSERVER_DB_CONNECTION:  ${LABSERVER_DB_CONNECTION}
+      LABSERVER_GITLAB_BASE:    ${LABSERVER_GITLAB_BASE}
     networks:
       - gitlab_net
