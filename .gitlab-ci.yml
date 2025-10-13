@@ -7,6 +7,11 @@ variables:
   DOTNET_CLI_TELEMETRY_OPTOUT: "true"
   COMPOSE_PROJECT_NAME: labserverintegration
   NET_NAME: gitlab_net
+  # используем домены, как у nginx/gitlab vhost
+  LABSERVER_API_BASE:   "http://admin.labserver.local/"
+  LABSERVER_NGINX_BASE: "http://admin.labserver.local/"
+  LABSERVER_GITLAB_BASE:"http://git.labserver.local/"
+  LABSERVER_DB_CONNECTION: "Host=db;Port=5432;Database=labs;Username=postgres;Password=123456;Timeout=10"
 
 build:
   stage: build
@@ -18,17 +23,15 @@ build:
 integration_test:
   stage: integration_test
   image: docker:25.0.4
+  privileged: true
   services:
     - name: docker:25.0.4-dind
       alias: docker
       command: ["--host=tcp://0.0.0.0:2375", "--tls=false"]
+      privileged: true
   variables:
     DOCKER_HOST: tcp://docker:2375
     DOCKER_TLS_CERTDIR: ""
-    LABSERVER_API_BASE: http://webserver:80/
-    LABSERVER_NGINX_BASE: http://webserver:80/
-    LABSERVER_DB_CONNECTION: Host=db;Port=5432;Database=labs;Username=postgres;Password=123456;Timeout=10
-    LABSERVER_GITLAB_BASE: http://gitlab:80/
   before_script:
     - apk add --no-cache curl docker-cli-compose
     - |
@@ -39,10 +42,42 @@ integration_test:
       done
     - docker version
     - docker compose version
+    # создаём внешнюю сеть, т.к. в compose.yml external: true
     - docker network inspect "${NET_NAME}" >/dev/null 2>&1 || docker network create "${NET_NAME}"
-    - docker compose -f compose.yml -f compose.integration-ci.yml up -d --build db labserver webserver
-    - echo "Giving services time to initialize..."
-    - sleep 80
+    # поднимаем все нужные сервисы (gitlab тоже)
+    - docker compose -f compose.yml -f compose.integration-ci.yml up -d --build db labserver webserver gitlab
+    # ждём готовности admin.labserver.local (правильный Host-header для vhost)
+    - |
+      echo "Waiting for admin.labserver.local ..."
+      for i in $(seq 1 180); do
+        if docker run --rm --network "${NET_NAME}" curlimages/curl:8.10.1 \
+             -fsS -o /dev/null -H 'Host: admin.labserver.local' http://webserver:80/; then
+          echo "admin.labserver.local is ready"; break
+        fi
+        sleep 2
+        if [ $i -eq 180 ]; then
+          echo "admin.labserver.local NOT ready"
+          docker ps
+          docker logs $(docker compose ps -q webserver) | tail -n 200 || true
+          exit 1
+        fi
+      done
+    # ждём доступности gitlab по его домену (совпадает с external_url)
+    - |
+      echo "Waiting for git.labserver.local ..."
+      for i in $(seq 1 300); do
+        if docker run --rm --network "${NET_NAME}" curlimages/curl:8.10.1 \
+             -fsS -o /dev/null -H 'Host: git.labserver.local' http://gitlab:80/; then
+          echo "git.labserver.local is reachable"; break
+        fi
+        sleep 3
+        if [ $i -eq 300 ]; then
+          echo "git.labserver.local NOT reachable"
+          docker ps
+          docker logs $(docker compose ps -q gitlab) | tail -n 200 || true
+          exit 1
+        fi
+      done
   script:
   - mkdir -p TestResults
   - docker network inspect "${NET_NAME}" >/dev/null 2>&1 || docker network create "${NET_NAME}"

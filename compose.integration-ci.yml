@@ -3,9 +3,21 @@ services:
 
   webserver:
     ports: []
+    networks:
+      gitlab_net:
+        aliases:
+          - webserver
+          - admin.labserver.local
+          - my.labserver.local
 
   db:
     ports: []
 
   gitlab:
     ports: []
+    networks:
+      gitlab_net:
+        aliases:
+          - gitlab
+          - git.labserver.local
+          - labserver.local
