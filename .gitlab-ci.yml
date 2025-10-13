@@ -18,12 +18,10 @@ build:
 integration_test:
   stage: integration_test
   image: docker:25.0.4
-  privileged: true
   services:
     - name: docker:25.0.4-dind
       alias: docker
       command: ["--host=tcp://0.0.0.0:2375", "--tls=false"]
-      privileged: true
   variables:
     DOCKER_HOST: tcp://docker:2375
     DOCKER_TLS_CERTDIR: ""
