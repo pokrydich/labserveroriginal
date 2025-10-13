@@ -7,7 +7,6 @@ variables:
   DOTNET_CLI_TELEMETRY_OPTOUT: "true"
   COMPOSE_PROJECT_NAME: labserverintegration
   NET_NAME: gitlab_net
-  # используем домены, как у nginx/gitlab vhost
   LABSERVER_API_BASE:   "http://admin.labserver.local/"
   LABSERVER_NGINX_BASE: "http://admin.labserver.local/"
   LABSERVER_GITLAB_BASE: "http://git.labserver.local/"
@@ -40,11 +39,8 @@ integration_test:
       done
     - docker version
     - docker compose version
-    # создаём внешнюю сеть, т.к. в compose.yml external: true
     - docker network inspect "${NET_NAME}" >/dev/null 2>&1 || docker network create "${NET_NAME}"
-    # поднимаем все нужные сервисы (gitlab тоже)
     - docker compose -f compose.yml -f compose.integration-ci.yml up -d --build db labserver webserver gitlab
-    # ждём готовности admin.labserver.local (правильный Host-header для vhost)
     - |
       echo "Waiting for admin.labserver.local ..."
       for i in $(seq 1 180); do
@@ -60,7 +56,6 @@ integration_test:
           exit 1
         fi
       done
-    # ждём доступности gitlab по его домену (совпадает с external_url)
     - |
       echo "Waiting for git.labserver.local ..."
       for i in $(seq 1 300); do
