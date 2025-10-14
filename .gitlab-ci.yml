@@ -43,6 +43,7 @@ integration_test:
     # === readiness: проверяем именно FQDN и /health ===
     - docker compose -f compose.yml -f compose.integration-ci.yml run --rm tests getent hosts admin.labserver.local
     - |
+      curl http://admin.labserver.local/
       echo "Waiting for admin.labserver.local ..."
       for i in $(seq 1 120); do
         if docker compose -f compose.yml -f compose.integration-ci.yml run --rm tests \
