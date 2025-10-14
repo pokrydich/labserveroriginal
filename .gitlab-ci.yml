@@ -1,4 +1,5 @@
 stages:
+  - secrets_information
   - integration_test
 
 variables:
@@ -11,9 +12,41 @@ variables:
   LABSERVER_GITLAB_BASE: "http://git.labserver.local/"
   LABSERVER_DB_CONNECTION: "Host=db;Port=5432;Database=labs;Username=postgres;Password=123456;Timeout=10"
 
-integration_test:
+generate:dotenv:
+  stage: secrets_information
+  image: alpine:3.20
+  script:
+    - apk add --no-cache bash openssl gettext
+    - JWT_SECURITY_KEY="$(openssl rand -hex 32)"
+    - GITLAB_PAT="glpat-$(openssl rand -base64 24 | tr -dc 'A-Za-z0-9')"
+    - |
+      cat > CI-CD/generated.env <<EOF
+      JWT_SECURITY_KEY=${JWT_SECURITY_KEY}
+      GITLAB_PAT=${GITLAB_PAT}
+      EOF
+
+      source CI-CD/generated.env
+
+    - |
+      if [ -f CI-CD/appsettings.template.json ]; then
+        echo "Building Server/appsettings.docker.json from template with env vars"
+        export JWT_SECURITY_KEY GITLAB_PAT
+        envsubst < CI-CD/appsettings.template.json > Server/appsettings.docker.json
+      else
+        echo "CI-CD/appsettings.template.json not found — skip generating appsettings" >&2
+      fi
+
+  artifacts:
+    reports:
+      dotenv: CI-CD/generated.env
+    paths:
+      - CI-CD/generated.env
+      - Server/appsettings.docker.json
+
+test:integration:
   stage: integration_test
   image: docker:25.0.4
+  needs: ["generate:dotenv"]
   services:
     - name: docker:25.0.4-dind
       alias: docker
@@ -90,10 +123,6 @@ integration_test:
       done
 
   script:
-    - |
-      docker compose ps -q | xargs -n 1 docker inspect -f '{{.Name}} - {{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}'
-      echo "Test cnnection to admin.labserver"
-      curl -X POST http://admin.labserver.local/api/Login -H "Content-Type: application/json" -d "{\"email\": \"test_mail_first@test.dev\", \"password\": \"1qaz@WSX\"}" -v
     - mkdir -p TestResults
     # 5) Запускаем тесты с подробным консольным логированием (видно Console.WriteLine в job-логе) и выгрузкой .trx
     - >
