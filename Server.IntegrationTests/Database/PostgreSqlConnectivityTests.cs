@@ -1,8 +1,6 @@
 namespace Server.IntegrationTests.Database;
 
 using Npgsql;
-
-using Npgsql;
 using System.Data;
 
 public class PostgreSqlConnectivityTests

@@ -1,5 +1,6 @@
 namespace Server.IntegrationTests.Api;
 
+using System.Net.Http.Headers;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using Server.IntegrationTests.Infrastructure;
