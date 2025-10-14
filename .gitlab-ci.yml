@@ -22,7 +22,7 @@ integration_test:
     DOCKER_HOST: tcp://docker:2375
     DOCKER_TLS_CERTDIR: ""
   before_script:
-    - apk add --no-cache curl docker-cli-compose
+    - apk add --no-cache curl docker-cli-compose postgresql-client
     - |
       i=0
       until docker info >/dev/null 2>&1; do
@@ -31,44 +31,89 @@ integration_test:
       done
     - docker compose version
 
-    # Сеть должна существовать внутри dind
+    # Сеть для всех сервисов
     - docker network inspect "${NET_NAME}" >/dev/null 2>&1 || docker network create "${NET_NAME}"
 
-    # Собираем образы (nginx с фронтом и конфигами, labserver)
+    # Собираем образы (nginx и labserver)
     - docker compose -f compose.yml -f compose.integration-ci.yml build webserver labserver
 
-    # Поднимаем зависимости и приложения
-    - docker compose -f compose.yml -f compose.integration-ci.yml up -d db webserver labserver
+    # 1) Поднимаем ТОЛЬКО БД и ждём, пока она действительно примет соединения
+    - docker compose -f compose.yml -f compose.integration-ci.yml up -d db
+    - |
+      echo "Waiting for Postgres (db) to be ready..."
+      for i in $(seq 1 60); do
+        if docker compose -f compose.yml -f compose.integration-ci.yml exec -T db \
+            pg_isready -h localhost -p 5432 -d labs -U postgres >/dev/null 2>&1; then
+          echo "Postgres is ready"; break
+        fi
+        echo "db not ready yet... ($i/60)"; sleep 2
+        if [ $i -eq 60 ]; then
+          echo "Postgres NOT ready"
+          docker compose -f compose.yml -f compose.integration-ci.yml logs db | tail -n 200 || true
+          exit 1
+        fi
+      done
 
-    # === readiness: проверяем именно FQDN и /health ===
+    # 2) Применяем EF-миграции к БД внутри сервиса tests (без изменения compose.yml)
+    - >
+      docker compose -f compose.yml -f compose.integration-ci.yml run --rm tests
+      bash -lc '
+        set -euo pipefail
+        cd Server
+        dotnet new tool-manifest >/dev/null 2>&1 || true
+        dotnet tool install dotnet-ef >/dev/null 2>&1 || true
+        dotnet tool restore
+        echo "Applying EF migrations to: $LABSERVER_DB_CONNECTION"
+        dotnet ef database update --connection "$LABSERVER_DB_CONNECTION"
+      '
+
+    # 3) Теперь поднимаем webserver и labserver (схема уже есть)
+    - docker compose -f compose.yml -f compose.integration-ci.yml up -d webserver labserver
+
+    # 4) Проверяем резолв имени и готовность admin.labserver.local
     - docker compose -f compose.yml -f compose.integration-ci.yml run --rm tests getent hosts admin.labserver.local
     - |
-      curl http://admin.labserver.local/
-      echo "Waiting for admin.labserver.local ..."
+      echo "Waiting for admin.labserver.local /health ..."
       for i in $(seq 1 120); do
         if docker compose -f compose.yml -f compose.integration-ci.yml run --rm tests \
              curl -fsS -o /dev/null http://admin.labserver.local/health; then
           echo "admin.labserver.local is ready"; break
         fi
-        sleep 2
+        echo "not ready yet... ($i/120)"; sleep 2
         if [ $i -eq 120 ]; then
           echo "admin.labserver.local NOT ready"
           docker compose -f compose.yml -f compose.integration-ci.yml ps
           docker logs $(docker compose -f compose.yml -f compose.integration-ci.yml ps -q webserver) | tail -n 200 || true
-          docker compose -f compose.yml -f compose.integration-ci.yml exec -T webserver sh -lc '(ss -ltn 2>/dev/null || netstat -ltn 2>/dev/null) | grep ":80" || true; nginx -T | sed -n "1,160p"'
           exit 1
         fi
       done
 
   script:
+    - |
+      echo "Test cnnection to admin.labserver"
+      curl -X POST http://admin.labserver.local/api/Login -H "Content-Type: application/json" -d "{\"email\": \"test_mail_first@test.dev\", \"password\": \"1qaz@WSX\"}" -v
     - mkdir -p TestResults
-    # Запускаем тесты из сервиса `tests` (та же сеть/алиасы)
+    # 5) Запускаем тесты с подробным консольным логированием (видно Console.WriteLine в job-логе) и выгрузкой .trx
     - >
-      docker compose -f compose.yml -f compose.integration-ci.yml run --rm tests
-      dotnet test Server.IntegrationTests/Server.IntegrationTests.csproj
-      --configuration Release
-      --filter "FullyQualifiedName~Server.IntegrationTests.Database|FullyQualifiedName~Server.IntegrationTests.Api"
-      --logger "trx;LogFileName=/workspace/TestResults/integration.trx"
+      docker compose -f compose.yml -f compose.integration-ci.yml run --rm tests bash -c "
+        echo 'Testing connection from inside container...';
+        curl -X POST http://admin.labserver.local/api/Login \
+          -H \"Content-Type: application/json\" \
+          -d '{\"email\": \"test_mail_first@test.dev\", \"password\": \"1qaz@WSX\"}' -v;
+        dotnet test Server.IntegrationTests/Server.IntegrationTests.csproj \
+          --configuration Release \
+          --filter 'FullyQualifiedName~Server.IntegrationTests.Database|FullyQualifiedName~Server.IntegrationTests.Api' \
+          --logger 'console;verbosity=detailed' \
+          --logger 'trx;LogFileName=/workspace/TestResults/integration.trx' \
+          --verbosity normal
+        "
+    - |
+      dotnet test Server.IntegrationTests/Server.IntegrationTests.csproj \
+        --configuration Release \
+        --filter 'FullyQualifiedName~Server.IntegrationTests.Database|FullyQualifiedName~Server.IntegrationTests.Api' \
+        --logger 'console;verbosity=detailed' \
+        --logger 'trx;LogFileName=/workspace/TestResults/integration.trx' \
+        --verbosity normal
 
   after_script:
     - docker compose -f compose.yml -f compose.integration-ci.yml down
