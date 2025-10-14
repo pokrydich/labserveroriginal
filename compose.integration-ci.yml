@@ -1,7 +1,5 @@
 services:
   labserver:
-    # В CI не монтируем appsettings.json — всё через ENV/образ
-    volumes: []                               # важно
     environment:
       ASPNETCORE_URLS: "http://0.0.0.0:5288"  # сервер слушает 5288 (см. твой Dockerfile)
       # ↓ при необходимости раскомментируй и подставь свои значения:

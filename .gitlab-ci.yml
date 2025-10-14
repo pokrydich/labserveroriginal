@@ -90,6 +90,7 @@ integration_test:
 
   script:
     - |
+      docker compose ps -q | xargs -n 1 docker inspect -f '{{.Name}} - {{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}'
       echo "Test cnnection to admin.labserver"
       curl -X POST http://admin.labserver.local/api/Login -H "Content-Type: application/json" -d "{\"email\": \"test_mail_first@test.dev\", \"password\": \"1qaz@WSX\"}" -v
     - mkdir -p TestResults
@@ -116,6 +117,9 @@ integration_test:
         --verbosity normal
 
   after_script:
+    - docker logs $(docker compose -f compose.yml -f compose.integration-ci.yml ps -q labserver) | head -n 150
+    - docker logs $(docker compose -f compose.yml -f compose.integration-ci.yml ps -q webserver) | head -n 150
+
     - docker compose -f compose.yml -f compose.integration-ci.yml down
 
   artifacts:
