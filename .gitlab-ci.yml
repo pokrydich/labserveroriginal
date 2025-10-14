@@ -109,17 +109,10 @@ integration_test:
           --logger 'trx;LogFileName=/workspace/TestResults/integration.trx' \
           --verbosity normal
         "
-    - |
-      dotnet test Server.IntegrationTests/Server.IntegrationTests.csproj \
-        --configuration Release \
-        --filter 'FullyQualifiedName~Server.IntegrationTests.Database|FullyQualifiedName~Server.IntegrationTests.Api' \
-        --logger 'console;verbosity=detailed' \
-        --logger 'trx;LogFileName=/workspace/TestResults/integration.trx' \
-        --verbosity normal
 
   after_script:
-    - docker logs $(docker compose -f compose.yml -f compose.integration-ci.yml ps -q labserver) | head -n 150
-    - docker logs $(docker compose -f compose.yml -f compose.integration-ci.yml ps -q webserver) | head -n 150
+    # - docker logs $(docker compose -f compose.yml -f compose.integration-ci.yml ps -q labserver) | head -n 150
+    # - docker logs $(docker compose -f compose.yml -f compose.integration-ci.yml ps -q webserver) | head -n 150
 
     - docker compose -f compose.yml -f compose.integration-ci.yml down
 

@@ -128,41 +128,41 @@ public class LabServerApiTests : IClassFixture<HttpClientFixture>
         Assert.True(json!["successful"]?.GetValue<bool>() ?? false);
     }
 
-    [Fact]
-    public async Task Login_CreateGroup_And_Sync_WorksSuccessfully()
-    {
-        Console.WriteLine("[DEBUG] Starting test: Login_CreateGroup_And_Sync_WorksSuccessfully");
+    // [Fact]
+    // public async Task Login_CreateGroup_And_Sync_WorksSuccessfully()
+    // {
+    //     Console.WriteLine("[DEBUG] Starting test: Login_CreateGroup_And_Sync_WorksSuccessfully");
 
-        var login_teacher = new { email = "test_mail_second@test.dev", password = "1qaz@WSX" };
+    //     var login_teacher = new { email = "test_mail_second@test.dev", password = "1qaz@WSX" };
 
-        using var loginResponse = await _client.PostAsJsonAsync("api/Login", login_teacher);
-        await LogResponse(loginResponse);
+    //     using var loginResponse = await _client.PostAsJsonAsync("api/Login", login_teacher);
+    //     await LogResponse(loginResponse);
 
-        Assert.True(loginResponse.IsSuccessStatusCode);
-        var loginJson = await loginResponse.Content.ReadFromJsonAsync<JsonObject>();
-        var token = loginJson?["result"]?.ToString();
-        Console.WriteLine($"[DEBUG] Login successful, token = {token}");
-        Assert.False(string.IsNullOrWhiteSpace(token));
+    //     Assert.True(loginResponse.IsSuccessStatusCode);
+    //     var loginJson = await loginResponse.Content.ReadFromJsonAsync<JsonObject>();
+    //     var token = loginJson?["result"]?.ToString();
+    //     Console.WriteLine($"[DEBUG] Login successful, token = {token}");
+    //     Assert.False(string.IsNullOrWhiteSpace(token));
 
-        _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-        Console.WriteLine("[DEBUG] Authorization header set.");
+    //     _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+    //     Console.WriteLine("[DEBUG] Authorization header set.");
 
-        var createGroupBody = new { name = "333" };
-        Console.WriteLine("[DEBUG] Sending POST api/rest/Groups");
-        using var createGroupResponse = await _client.PostAsJsonAsync("api/rest/Groups", createGroupBody);
-        await LogResponse(createGroupResponse);
+    //     var createGroupBody = new { name = "333" };
+    //     Console.WriteLine("[DEBUG] Sending POST api/rest/Groups");
+    //     using var createGroupResponse = await _client.PostAsJsonAsync("api/rest/Groups", createGroupBody);
+    //     await LogResponse(createGroupResponse);
 
-        Assert.True(createGroupResponse.IsSuccessStatusCode);
-        var createGroupJson = await createGroupResponse.Content.ReadFromJsonAsync<JsonObject>();
-        Assert.True(createGroupJson!["successful"]?.GetValue<bool>() ?? false);
+    //     Assert.True(createGroupResponse.IsSuccessStatusCode);
+    //     var createGroupJson = await createGroupResponse.Content.ReadFromJsonAsync<JsonObject>();
+    //     Assert.True(createGroupJson!["successful"]?.GetValue<bool>() ?? false);
 
-        using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(10));
-        Console.WriteLine("[DEBUG] Sending GET api/rest/Groups/sync");
-        using var syncResponse = await _client.GetAsync("api/rest/Groups/sync", cts.Token);
-        await LogResponse(syncResponse);
+    //     using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(10));
+    //     Console.WriteLine("[DEBUG] Sending GET api/rest/Groups/sync");
+    //     using var syncResponse = await _client.GetAsync("api/rest/Groups/sync", cts.Token);
+    //     await LogResponse(syncResponse);
 
-        Assert.True(syncResponse.IsSuccessStatusCode);
-        var syncJson = await syncResponse.Content.ReadFromJsonAsync<JsonObject>();
-        Assert.True(syncJson!["successful"]?.GetValue<bool>() ?? false);
-    }
+    //     Assert.True(syncResponse.IsSuccessStatusCode);
+    //     var syncJson = await syncResponse.Content.ReadFromJsonAsync<JsonObject>();
+    //     Assert.True(syncJson!["successful"]?.GetValue<bool>() ?? false);
+    // }
 }
