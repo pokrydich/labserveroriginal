@@ -64,6 +64,7 @@ integration_test:
         dotnet tool install dotnet-ef >/dev/null 2>&1 || true
         dotnet tool restore
         echo "Applying EF migrations to: $LABSERVER_DB_CONNECTION"
+        dotnet ef migrations add init
         dotnet ef database update --connection "$LABSERVER_DB_CONNECTION"
       '
 
