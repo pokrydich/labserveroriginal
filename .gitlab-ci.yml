@@ -67,6 +67,53 @@ test:integration:
     # Сеть для всех сервисов
     - docker network inspect "${NET_NAME}" >/dev/null 2>&1 || docker network create "${NET_NAME}"
 
+    - docker compose -f compose.yml -f compose.integration-ci.yml up -d gitlab
+
+    - |
+      echo "Waiting for GitLab to be ready..."
+      for i in $(seq 1 60); do
+        if docker compose -f compose.yml -f compose.integration-ci.yml exec -T gitlab \
+             bash -lc "curl -fsS http://localhost/-/health >/dev/null"; then
+          echo "GitLab is ready"; break
+        fi
+        echo "gitlab not ready yet... ($i/60)"; sleep 10
+        if [ $i -eq 60 ]; then
+          echo "GitLab NOT ready"
+          docker logs $(docker compose -f compose.yml -f compose.integration-ci.yml ps -q gitlab) | tail -n 200 || true
+          exit 1
+        fi
+      done
+    
+    - |
+      echo "Creating/Updating root PAT in GitLab using GITLAB_PAT"
+      docker compose -f compose.yml -f compose.integration-ci.yml exec -T -e ROOT_PAT="$GITLAB_PAT" gitlab bash -lc "
+      set -e
+      gitlab-rails runner \"
+      user = User.find_by_username('root')
+      token = user.personal_access_tokens.create(
+        scopes: [
+          'api',
+          'read_api',
+          'read_user',
+          'create_runner',
+          'manage_runner',
+          'read_repository',
+          'write_repository',
+          'sudo',
+          'admin_mode',
+          'self_rotate',
+          'read_service_ping'
+        ],
+        name: 'Automation token',
+        expires_at: 365.days.from_now
+      )
+      token.set_token(ENV['ROOT_PAT'])
+      token.save!
+      a = PersonalAccessToken.find_by_token(ENV['ROOT_PAT'])
+      puts a.inspect
+      \"
+      "
+
     # Собираем образы (nginx и labserver)
     - docker compose -f compose.yml -f compose.integration-ci.yml build webserver labserver
 
@@ -101,6 +148,7 @@ test:integration:
         dotnet ef database update --connection "$LABSERVER_DB_CONNECTION"
       '
 
+    
     # 3) Теперь поднимаем webserver и labserver (схема уже есть)
     - docker compose -f compose.yml -f compose.integration-ci.yml up -d webserver labserver
 
@@ -127,10 +175,6 @@ test:integration:
     # 5) Запускаем тесты с подробным консольным логированием (видно Console.WriteLine в job-логе) и выгрузкой .trx
     - >
       docker compose -f compose.yml -f compose.integration-ci.yml run --rm tests bash -c "
-        echo 'Testing connection from inside container...';
-        curl -X POST http://admin.labserver.local/api/Login \
-          -H \"Content-Type: application/json\" \
-          -d '{\"email\": \"test_mail_first@test.dev\", \"password\": \"1qaz@WSX\"}' -v;
         dotnet test Server.IntegrationTests/Server.IntegrationTests.csproj \
           --configuration Release \
           --filter 'FullyQualifiedName~Server.IntegrationTests.Database|FullyQualifiedName~Server.IntegrationTests.Api' \
@@ -140,7 +184,8 @@ test:integration:
         "
 
   after_script:
-    # - docker logs $(docker compose -f compose.yml -f compose.integration-ci.yml ps -q labserver) | head -n 150
+    - docker logs $(docker compose -f compose.yml -f compose.integration-ci.yml ps -q gitlab) | head -n 150
+    - docker logs $(docker compose -f compose.yml -f compose.integration-ci.yml ps -q labserver) | head -n 150
     # - docker logs $(docker compose -f compose.yml -f compose.integration-ci.yml ps -q webserver) | head -n 150
 
     - docker compose -f compose.yml -f compose.integration-ci.yml down
