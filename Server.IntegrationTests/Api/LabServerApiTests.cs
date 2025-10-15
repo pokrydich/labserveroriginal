@@ -118,7 +118,7 @@ public class LabServerApiTests : IClassFixture<HttpClientFixture>
         _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
         Console.WriteLine("[DEBUG] Authorization header set.");
 
-        var url = "api/rest/Users/1/roles?role=1";
+        var url = "api/rest/Users/2/roles?role=1";
         Console.WriteLine($"[DEBUG] Sending GET {url}");
         using var response = await _client.GetAsync(url);
         await LogResponse(response);
