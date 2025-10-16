@@ -1,4 +1,5 @@
 namespace Server.IntegrationTests.Api;
+
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
@@ -6,7 +7,7 @@ using System.Text.Json.Nodes;
 using Server.IntegrationTests.Infrastructure;
 
 [TestCaseOrderer(
-    "Server.IntegrationTests.Api.PriorityOrderer",
+    "PriorityOrderer",
     "Server.IntegrationTests"
 )]
 public class LabServerApiTests : IClassFixture<HttpClientFixture>

@@ -67,52 +67,52 @@ test:integration:
     # Сеть для всех сервисов
     - docker network inspect "${NET_NAME}" >/dev/null 2>&1 || docker network create "${NET_NAME}"
 
-    - docker compose -f compose.yml -f compose.integration-ci.yml up -d gitlab
+    # - docker compose -f compose.yml -f compose.integration-ci.yml up -d gitlab
 
-    - |
-      echo "Waiting for GitLab to be ready..."
-      for i in $(seq 1 60); do
-        if docker compose -f compose.yml -f compose.integration-ci.yml exec -T gitlab \
-             bash -lc "curl -fsS http://localhost/-/health >/dev/null"; then
-          echo "GitLab is ready"; break
-        fi
-        echo "gitlab not ready yet... ($i/60)"; sleep 10
-        if [ $i -eq 60 ]; then
-          echo "GitLab NOT ready"
-          docker logs $(docker compose -f compose.yml -f compose.integration-ci.yml ps -q gitlab) | tail -n 200 || true
-          exit 1
-        fi
-      done
+    # - |
+    #   echo "Waiting for GitLab to be ready..."
+    #   for i in $(seq 1 60); do
+    #     if docker compose -f compose.yml -f compose.integration-ci.yml exec -T gitlab \
+    #          bash -lc "curl -fsS http://localhost/-/health >/dev/null"; then
+    #       echo "GitLab is ready"; break
+    #     fi
+    #     echo "gitlab not ready yet... ($i/60)"; sleep 10
+    #     if [ $i -eq 60 ]; then
+    #       echo "GitLab NOT ready"
+    #       docker logs $(docker compose -f compose.yml -f compose.integration-ci.yml ps -q gitlab) | tail -n 200 || true
+    #       exit 1
+    #     fi
+    #   done
     
-    - |
-      echo "Creating/Updating root PAT in GitLab using GITLAB_PAT"
-      docker compose -f compose.yml -f compose.integration-ci.yml exec -T -e ROOT_PAT="$GITLAB_PAT" gitlab bash -lc "
-      set -e
-      gitlab-rails runner \"
-      user = User.find_by_username('root')
-      token = user.personal_access_tokens.create(
-        scopes: [
-          'api',
-          'read_api',
-          'read_user',
-          'create_runner',
-          'manage_runner',
-          'read_repository',
-          'write_repository',
-          'sudo',
-          'admin_mode',
-          'self_rotate',
-          'read_service_ping'
-        ],
-        name: 'Automation token',
-        expires_at: 365.days.from_now
-      )
-      token.set_token(ENV['ROOT_PAT'])
-      token.save!
-      a = PersonalAccessToken.find_by_token(ENV['ROOT_PAT'])
-      puts a.inspect
-      \"
-      "
+    # - |
+    #   echo "Creating/Updating root PAT in GitLab using GITLAB_PAT"
+    #   docker compose -f compose.yml -f compose.integration-ci.yml exec -T -e ROOT_PAT="$GITLAB_PAT" gitlab bash -lc "
+    #   set -e
+    #   gitlab-rails runner \"
+    #   user = User.find_by_username('root')
+    #   token = user.personal_access_tokens.create(
+    #     scopes: [
+    #       'api',
+    #       'read_api',
+    #       'read_user',
+    #       'create_runner',
+    #       'manage_runner',
+    #       'read_repository',
+    #       'write_repository',
+    #       'sudo',
+    #       'admin_mode',
+    #       'self_rotate',
+    #       'read_service_ping'
+    #     ],
+    #     name: 'Automation token',
+    #     expires_at: 365.days.from_now
+    #   )
+    #   token.set_token(ENV['ROOT_PAT'])
+    #   token.save!
+    #   a = PersonalAccessToken.find_by_token(ENV['ROOT_PAT'])
+    #   puts a.inspect
+    #   \"
+    #   "
 
     # Собираем образы (nginx и labserver)
     - docker compose -f compose.yml -f compose.integration-ci.yml build webserver labserver
