@@ -1,0 +1,18 @@
+FROM mcr.microsoft.com/dotnet/sdk:9.0
+
+RUN apt-get update && \
+    apt-get install -y openjdk-17-jre-headless curl && \
+    rm -rf /var/lib/apt/lists/*
+
+ENV JMETER_VERSION=5.6.3 \
+    JMETER_HOME=/opt/apache-jmeter-5.6.3
+
+RUN curl -L "https://dlcdn.apache.org/jmeter/binaries/apache-jmeter-${JMETER_VERSION}.tgz" -o /tmp/jmeter.tgz && \
+    mkdir -p /opt && \
+    tar -xzf /tmp/jmeter.tgz -C /opt && \
+    rm /tmp/jmeter.tgz
+
+ENV PATH="${PATH}:${JMETER_HOME}/bin"
+
+WORKDIR /workspace
+CMD ["bash"]
