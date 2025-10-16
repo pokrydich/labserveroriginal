@@ -201,6 +201,15 @@ public class LabServerApiTests : IClassFixture<HttpClientFixture>
         successful = syncJson!["successful"]?.GetValue<bool>() ?? false;
         error = syncJson["error"]?.ToString();
         Assert.True(successful, $"Unsuccessful synchronization of groups with GitLab. successful=false. Error: {error}");
+
+        var warningsNode = syncJson["warnings"] as JsonArray;
+        Assert.NotNull(warningsNode);
+
+        if (warningsNode!.Count != 0)
+        {
+            var warningsText = warningsNode.ToJsonString(new JsonSerializerOptions { WriteIndented = false });
+            Assert.Fail($"Expected warnings: [], but got: {warningsText}");
+        }
     }
 
     [Fact, TestPriority(6)]
@@ -251,6 +260,15 @@ public class LabServerApiTests : IClassFixture<HttpClientFixture>
         successful = syncJson!["successful"]?.GetValue<bool>() ?? false;
         error = syncJson["error"]?.ToString();
         Assert.True(successful, $"Unsuccessful synchronization of students with GitLab in group '{groupId}'. successful=false. Error: {error}");
+
+        var warningsNode = syncJson["warnings"] as JsonArray;
+        Assert.NotNull(warningsNode);
+
+        if (warningsNode!.Count != 0)
+        {
+            var warningsText = warningsNode.ToJsonString(new JsonSerializerOptions { WriteIndented = false });
+            Assert.Fail($"Expected warnings: [], but got: {warningsText}");
+        }
     }
 
 
