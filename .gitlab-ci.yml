@@ -68,11 +68,7 @@ test:functional:
     - docker network inspect "${NET_NAME}" >/dev/null 2>&1 || docker network create "${NET_NAME}"
 
     - docker compose -f compose.yml -f compose.functional-ci.yml build tests
-
-    - docker compose -f compose.yml -f compose.functional-ci.yml run --rm tests ls
-    - docker compose -f compose.yml -f compose.functional-ci.yml run --rm tests pwd
     - docker compose -f compose.yml -f compose.functional-ci.yml run --rm tests jmeter --version
-    - docker compose -f compose.yml -f compose.functional-ci.yml run --rm tests pwd
 
     # - docker compose -f compose.yml -f compose.functional-ci.yml up -d gitlab
 
@@ -180,15 +176,8 @@ test:functional:
   script:
     - mkdir -p TestResults
     # 5) Запускаем тесты с подробным консольным логированием (видно Console.WriteLine в job-логе) и выгрузкой .trx
-    - >
-      docker compose -f compose.yml -f compose.functional-ci.yml run --rm tests bash -c "
-        dotnet test Server.IntegrationTests/Server.IntegrationTests.csproj \
-          --configuration Release \
-          --filter 'FullyQualifiedName~Server.IntegrationTests.Api' \
-          --logger 'console;verbosity=detailed' \
-          --logger 'trx;LogFileName=/workspace/TestResults/integration.trx' \
-          --verbosity normal
-        "
+    - docker compose -f compose.yml -f compose.functional-ci.yml run --rm tests jmeter -n -t CI-CD/JMeter/test_jmeter.jmx -j TestResults/functional_results.log
+    - docker compose -f compose.yml -f compose.functional-ci.yml run --rm tests cat TestResults/functional_results.log | tail -n 150
 
   after_script:
     # - docker logs $(docker compose -f compose.yml -f compose.functional-ci.yml ps -q gitlab) | tail -n 150
