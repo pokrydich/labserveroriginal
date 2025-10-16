@@ -1,11 +1,14 @@
 namespace Server.IntegrationTests.Api;
-
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using Server.IntegrationTests.Infrastructure;
 
+[TestCaseOrderer(
+    "Server.IntegrationTests.Api.PriorityOrderer",
+    "Server.IntegrationTests"
+)]
 public class LabServerApiTests : IClassFixture<HttpClientFixture>
 {
     private readonly HttpClient _client;
@@ -39,7 +42,7 @@ public class LabServerApiTests : IClassFixture<HttpClientFixture>
     }
 
 
-    [Fact]
+    [Fact, TestPriority(1)]
     public async Task Register_SameUsers_OneTwice_ReturnsAlreadyTakenError()
     {
         Console.WriteLine("[DEBUG] Starting test: Register_SameUsers_OneTwice_ReturnsAlreadyTakenError");
@@ -85,7 +88,7 @@ public class LabServerApiTests : IClassFixture<HttpClientFixture>
         }
     }
 
-    [Fact]
+    [Fact, TestPriority(2)]
     public async Task Login_ReturnsErrorEnvelope()
     {
         Console.WriteLine("[DEBUG] Starting test: Login_ReturnsErrorEnvelope");
@@ -101,7 +104,7 @@ public class LabServerApiTests : IClassFixture<HttpClientFixture>
         Assert.False(json!["Successful"]?.GetValue<bool>() ?? true);
     }
 
-    [Fact]
+    [Fact, TestPriority(3)]
     public async Task Login_ReturnsSuccessEnvelope()
     {
         Console.WriteLine("[DEBUG] Starting test: Login_ReturnsSuccessEnvelope");
@@ -124,7 +127,7 @@ public class LabServerApiTests : IClassFixture<HttpClientFixture>
         Assert.False(string.IsNullOrWhiteSpace(token));
     }
 
-    [Fact]
+    [Fact, TestPriority(4)]
     public async Task Login_And_AssignTeacherAndAssistentRole_WorksCorrectly()
     {
         Console.WriteLine("[DEBUG] Starting test: Login_And_AssignTeacherAndAssistentRole_WorksCorrectly");
@@ -157,144 +160,144 @@ public class LabServerApiTests : IClassFixture<HttpClientFixture>
         await LogResponse(response);
 
         Assert.True(response.IsSuccessStatusCode, $"[ERROR] Request to {url} failed with status {response.StatusCode}");
-        
+
         var addRoleJson = await response.Content.ReadFromJsonAsync<JsonObject>();
         var successful = addRoleJson!["successful"]?.GetValue<bool>() ?? false;
         var error = addRoleJson["error"]?.ToString();
         Assert.True(successful, $"Failed to add role '{roleId}' with user id '{userId}'. successful=false. Error: {error}");
     }
 
-    // [Fact]
-    // public async Task Login_CreateGroup_And_Sync_WorksSuccessfully()
-    // {
-    //     Console.WriteLine("[DEBUG] Starting test: Login_CreateGroup_And_Sync_WorksSuccessfully");
+    [Fact, TestPriority(5)]
+    public async Task Login_CreateGroup_And_Sync_WorksSuccessfully()
+    {
+        Console.WriteLine("[DEBUG] Starting test: Login_CreateGroup_And_Sync_WorksSuccessfully");
 
-    //     var token = await LoginAndGetToken("test_mail_second@test.dev", "1qaz@WSX");
-    //     Console.WriteLine($"[DEBUG] Login successful, token = {token}");
+        var token = await LoginAndGetToken("test_mail_second@test.dev", "1qaz@WSX");
+        Console.WriteLine($"[DEBUG] Login successful, token = {token}");
 
-    //     _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-    //     Console.WriteLine("[DEBUG] Authorization header set.");
-
-
-    //     var createGroupBody = new { name = "333" };
-    //     Console.WriteLine("[DEBUG] Sending POST api/rest/Groups");
-    //     using var createGroupResponse = await _client.PostAsJsonAsync("api/rest/Groups", createGroupBody);
-    //     await LogResponse(createGroupResponse);
-
-    //     Assert.True(createGroupResponse.IsSuccessStatusCode);
-    //     var createGroupJson = await createGroupResponse.Content.ReadFromJsonAsync<JsonObject>();
-    //     var successful = createGroupJson!["successful"]?.GetValue<bool>() ?? false;
-    //     var error = createGroupJson["error"]?.ToString();
-    //     Assert.True(successful, $"Falid to create group with name '333'. successful=false. Error: {error}");
-
-    //     using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(15));
-    //     Console.WriteLine("[DEBUG] Sending GET api/rest/Groups/sync");
-    //     using var syncResponse = await _client.GetAsync("api/rest/Groups/sync", cts.Token);
-    //     await LogResponse(syncResponse);
-
-    //     Assert.True(syncResponse.IsSuccessStatusCode);
-    //     var syncJson = await syncResponse.Content.ReadFromJsonAsync<JsonObject>();
-    //     successful = syncJson!["successful"]?.GetValue<bool>() ?? false;
-    //     error = syncJson["error"]?.ToString();
-    //     Assert.True(successful, $"Unsuccessful synchronization of groups with GitLab. successful=false. Error: {error}");
-    // }
-
-    // [Fact]
-    // public async Task Login_And_ImportStudents_FromCsv_WorksSuccessfully()
-    // {
-    //     Console.WriteLine("[DEBUG] Starting test: Login_And_ImportStudents_FromCsv_WorksSuccessfully");
-
-    //     var login_teacher = new { email = "test_mail_second@test.dev", password = "1qaz@WSX" };
-    //     using var loginResponse = await _client.PostAsJsonAsync("api/Login", login_teacher);
-    //     await LogResponse(loginResponse);
-
-    //     Assert.True(loginResponse.IsSuccessStatusCode);
-    //     var loginJson = await loginResponse.Content.ReadFromJsonAsync<JsonObject>();
-    //     var token = loginJson?["result"]?.ToString();
-    //     Console.WriteLine($"[DEBUG] Login successful, token = {token}");
-    //     Assert.False(string.IsNullOrWhiteSpace(token));
-
-    //     _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-    //     Console.WriteLine("[DEBUG] Authorization header set.");
-
-    //     var projectRoot = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", ".."));
-    //     var csvPath = Path.Combine(projectRoot, "CI-CD", "students.csv");
-    //     Console.WriteLine($"[DEBUG] CSV path = {csvPath}");
-    //     var textFromCsv = BuildTextForImportFromCsv(csvPath);
-    //     Console.WriteLine($"[DEBUG] text length = {textFromCsv.Length}");
-
-    //     var groupId = 1;
-    //     var body = new { text = textFromCsv };
-
-    //     Console.WriteLine($"[DEBUG] Sending POST api/rest/Groups/{groupId}/students/import");
-    //     using var importResponse = await _client.PostAsJsonAsync($"api/rest/Groups/{groupId}/students/import", body);
-    //     await LogResponse(importResponse);
-
-    //     Assert.True(importResponse.IsSuccessStatusCode);
-    //     var importJson = await importResponse.Content.ReadFromJsonAsync<JsonObject>();
-    //     var successful = importJson!["successful"]?.GetValue<bool>() ?? false;
-    //     var error = importJson["error"]?.ToString();
-    //     Assert.True(successful, $"Failed to import cvs database. successful=false. Error: {error}");
-        
-
-    //     using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(20));
-    //     Console.WriteLine($"[DEBUG] Sending GET /api/rest/Groups/{groupId}/students/sync");
-    //     using var syncResponse = await _client.GetAsync($"/api/rest/Groups/{groupId}/students/sync", cts.Token);
-    //     await LogResponse(syncResponse);
-
-    //     Assert.True(syncResponse.IsSuccessStatusCode);
-    //     var syncJson = await syncResponse.Content.ReadFromJsonAsync<JsonObject>();
-    //     successful = syncJson!["successful"]?.GetValue<bool>() ?? false;
-    //     error = syncJson["error"]?.ToString();
-    //     Assert.True(successful, $"Unsuccessful synchronization of students with GitLab in group '{groupId}'. successful=false. Error: {error}");
-    // }
+        _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+        Console.WriteLine("[DEBUG] Authorization header set.");
 
 
-    // private static string BuildTextForImportFromCsv(string csvPath)
-    // {
-    //     if (!File.Exists(csvPath))
-    //         throw new FileNotFoundException("CSV file not found", csvPath);
+        var createGroupBody = new { name = "333" };
+        Console.WriteLine("[DEBUG] Sending POST api/rest/Groups");
+        using var createGroupResponse = await _client.PostAsJsonAsync("api/rest/Groups", createGroupBody);
+        await LogResponse(createGroupResponse);
 
-    //     var lines = File.ReadAllLines(csvPath);
-    //     if (lines.Length == 0) return string.Empty;
+        Assert.True(createGroupResponse.IsSuccessStatusCode);
+        var createGroupJson = await createGroupResponse.Content.ReadFromJsonAsync<JsonObject>();
+        var successful = createGroupJson!["successful"]?.GetValue<bool>() ?? false;
+        var error = createGroupJson["error"]?.ToString();
+        Assert.True(successful, $"Falid to create group with name '333'. successful=false. Error: {error}");
 
-    //     var sb = new StringBuilder(capacity: Math.Max(128, lines.Length * 32));
+        using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(15));
+        Console.WriteLine("[DEBUG] Sending GET api/rest/Groups/sync");
+        using var syncResponse = await _client.GetAsync("api/rest/Groups/sync", cts.Token);
+        await LogResponse(syncResponse);
 
-    //     for (int i = 0; i < lines.Length; i++)
-    //     {
-    //         var line = lines[i];
-    //         if (string.IsNullOrWhiteSpace(line)) continue;
+        Assert.True(syncResponse.IsSuccessStatusCode);
+        var syncJson = await syncResponse.Content.ReadFromJsonAsync<JsonObject>();
+        successful = syncJson!["successful"]?.GetValue<bool>() ?? false;
+        error = syncJson["error"]?.ToString();
+        Assert.True(successful, $"Unsuccessful synchronization of groups with GitLab. successful=false. Error: {error}");
+    }
 
-    //         var parts = SplitTwoColumns(line);
-    //         if (parts == null) continue;
+    [Fact, TestPriority(6)]
+    public async Task Login_And_ImportStudents_FromCsv_WorksSuccessfully()
+    {
+        Console.WriteLine("[DEBUG] Starting test: Login_And_ImportStudents_FromCsv_WorksSuccessfully");
 
-    //         var name = TrimQuotes(parts.Value.name);
-    //         var email = TrimQuotes(parts.Value.email);
+        var login_teacher = new { email = "test_mail_second@test.dev", password = "1qaz@WSX" };
+        using var loginResponse = await _client.PostAsJsonAsync("api/Login", login_teacher);
+        await LogResponse(loginResponse);
 
-    //         if (string.IsNullOrWhiteSpace(name) || string.IsNullOrWhiteSpace(email))
-    //             continue;
+        Assert.True(loginResponse.IsSuccessStatusCode);
+        var loginJson = await loginResponse.Content.ReadFromJsonAsync<JsonObject>();
+        var token = loginJson?["result"]?.ToString();
+        Console.WriteLine($"[DEBUG] Login successful, token = {token}");
+        Assert.False(string.IsNullOrWhiteSpace(token));
 
-    //         sb.Append(name).Append(',').Append(email).Append('\n');
-    //     }
+        _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+        Console.WriteLine("[DEBUG] Authorization header set.");
 
-    //     return sb.ToString();
-    // }
+        var projectRoot = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", ".."));
+        var csvPath = Path.Combine(projectRoot, "CI-CD", "students.csv");
+        Console.WriteLine($"[DEBUG] CSV path = {csvPath}");
+        var textFromCsv = BuildTextForImportFromCsv(csvPath);
+        Console.WriteLine($"[DEBUG] text length = {textFromCsv.Length}");
 
-    // private static (string name, string email)? SplitTwoColumns(string line)
-    // {
-    //     var parts = line.Split(',', 2);
-    //     if (parts.Length < 2) return null;
-    //     return (parts[0].Trim(), parts[1].Trim());
-    // }
+        var groupId = 1;
+        var body = new { text = textFromCsv };
 
-    // private static string TrimQuotes(string s)
-    // {
-    //     if (s.Length >= 2 && s[0] == '"' && s[^1] == '"')
-    //         return s[1..^1].Trim();
-    //     return s.Trim();
-    // }
+        Console.WriteLine($"[DEBUG] Sending POST api/rest/Groups/{groupId}/students/import");
+        using var importResponse = await _client.PostAsJsonAsync($"api/rest/Groups/{groupId}/students/import", body);
+        await LogResponse(importResponse);
 
-    [Fact]
+        Assert.True(importResponse.IsSuccessStatusCode);
+        var importJson = await importResponse.Content.ReadFromJsonAsync<JsonObject>();
+        var successful = importJson!["successful"]?.GetValue<bool>() ?? false;
+        var error = importJson["error"]?.ToString();
+        Assert.True(successful, $"Failed to import cvs database. successful=false. Error: {error}");
+
+
+        using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(20));
+        Console.WriteLine($"[DEBUG] Sending GET /api/rest/Groups/{groupId}/students/sync");
+        using var syncResponse = await _client.GetAsync($"/api/rest/Groups/{groupId}/students/sync", cts.Token);
+        await LogResponse(syncResponse);
+
+        Assert.True(syncResponse.IsSuccessStatusCode);
+        var syncJson = await syncResponse.Content.ReadFromJsonAsync<JsonObject>();
+        successful = syncJson!["successful"]?.GetValue<bool>() ?? false;
+        error = syncJson["error"]?.ToString();
+        Assert.True(successful, $"Unsuccessful synchronization of students with GitLab in group '{groupId}'. successful=false. Error: {error}");
+    }
+
+
+    private static string BuildTextForImportFromCsv(string csvPath)
+    {
+        if (!File.Exists(csvPath))
+            throw new FileNotFoundException("CSV file not found", csvPath);
+
+        var lines = File.ReadAllLines(csvPath);
+        if (lines.Length == 0) return string.Empty;
+
+        var sb = new StringBuilder(capacity: Math.Max(128, lines.Length * 32));
+
+        for (int i = 0; i < lines.Length; i++)
+        {
+            var line = lines[i];
+            if (string.IsNullOrWhiteSpace(line)) continue;
+
+            var parts = SplitTwoColumns(line);
+            if (parts == null) continue;
+
+            var name = TrimQuotes(parts.Value.name);
+            var email = TrimQuotes(parts.Value.email);
+
+            if (string.IsNullOrWhiteSpace(name) || string.IsNullOrWhiteSpace(email))
+                continue;
+
+            sb.Append(name).Append(',').Append(email).Append('\n');
+        }
+
+        return sb.ToString();
+    }
+
+    private static (string name, string email)? SplitTwoColumns(string line)
+    {
+        var parts = line.Split(',', 2);
+        if (parts.Length < 2) return null;
+        return (parts[0].Trim(), parts[1].Trim());
+    }
+
+    private static string TrimQuotes(string s)
+    {
+        if (s.Length >= 2 && s[0] == '"' && s[^1] == '"')
+            return s[1..^1].Trim();
+        return s.Trim();
+    }
+
+    [Fact, TestPriority(7)]
     public async Task Login_And_CreateCourse_WorksSuccessfully()
     {
         Console.WriteLine("[DEBUG] Starting test: Login_And_CreateCourse_WorksSuccessfully");
@@ -320,7 +323,7 @@ public class LabServerApiTests : IClassFixture<HttpClientFixture>
     }
 
 
-    [Fact]
+    [Fact, TestPriority(8)]
     public async Task Login_And_CreateTwoLabs_WorksSuccessfully()
     {
         Console.WriteLine("[DEBUG] Starting test: Login_And_CreateTwoLabs_WorksSuccessfully");
@@ -377,7 +380,7 @@ public class LabServerApiTests : IClassFixture<HttpClientFixture>
         Assert.True(successful, $"Failed to create lab '{labName}'. successful=false. Error: {error}");
     }
 
-    [Fact]
+    [Fact, TestPriority(9)]
     public async Task AccessChanges_WhenRoleIsRemoved()
     {
         Console.WriteLine("[DEBUG] Starting test: AccessChanges_WhenRoleIsRemoved");
