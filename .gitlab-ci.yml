@@ -70,6 +70,23 @@ test:functional:
     - docker compose -f compose.yml -f compose.functional-ci.yml build tests
     - docker compose -f compose.yml -f compose.functional-ci.yml run --rm tests jmeter --version
 
+    - mkdir -p TestResults
+    # 5) Запускаем тесты с подробным консольным логированием (видно Console.WriteLine в job-логе) и выгрузкой .trx
+    - |
+      docker compose -f compose.yml -f compose.functional-ci.yml run --rm tests \
+        jmeter -n \
+        -t CI-CD/JMeter/test_jmeter.jmx \
+        -l TestResults/results.jtl \
+        -j TestResults/functional_results.log \
+        -Jjmeter.save.saveservice.response_data.on_error=true \
+        -Jjmeter.save.saveservice.samplerData=true \
+        -Jjmeter.save.saveservice.responseCode=true \
+        -Jjmeter.save.saveservice.responseMessage=true \
+        -Jjmeter.save.saveservice.assertion_results=all \
+        -Dfile.encoding=UTF-8
+    
+    - docker compose -f compose.yml -f compose.functional-ci.yml run --rm tests cat TestResults/results.jtl | head 200
+
     # - docker compose -f compose.yml -f compose.functional-ci.yml up -d gitlab
 
     # - |
