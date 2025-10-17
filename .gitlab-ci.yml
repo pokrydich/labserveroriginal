@@ -179,15 +179,18 @@ test:functional:
     - |
       docker compose -f compose.yml -f compose.functional-ci.yml run --rm tests \
         jmeter -n \
-        -t CI-CD/JMeter/test_jmeter.jmx \
-        -l TestResults/results.jtl \
-        -j TestResults/functional_results.log \
-        -Jjmeter.save.saveservice.response_data.on_error=true \
-        -Jjmeter.save.saveservice.samplerData=true \
-        -Jjmeter.save.saveservice.responseCode=true \
-        -Jjmeter.save.saveservice.responseMessage=true \
-        -Jjmeter.save.saveservice.assertion_results=all \
-        -Dfile.encoding=UTF-8
+          -t CI-CD/JMeter/test_jmeter.jmx \
+          -l TestResults/results.jtl \
+          -j TestResults/functional_results.log \
+          -JBASE_URL_1=admin.labserver.local \
+          -JPROTO=http \
+          -Jjmeter.save.saveservice.response_data.on_error=true \
+          -Jjmeter.save.saveservice.samplerData=true \
+          -Jjmeter.save.saveservice.responseCode=true \
+          -Jjmeter.save.saveservice.responseMessage=true \
+          -Jjmeter.save.saveservice.assertion_results=all \
+          -Jjmeter.save.saveservice.requestHeaders=true \
+          -Jjmeter.save.saveservice.responseHeaders=true
 
     - docker compose exec db psql -U postgres -d labs -c 'SELECT * FROM "Groups" LIMIT 10;'
     - docker compose exec db psql -U postgres -d labs -c 'SELECT * FROM "AspNetUsers" LIMIT 10;'
