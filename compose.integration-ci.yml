@@ -1,21 +1,15 @@
 services:
   labserver:
     environment:
-      ASPNETCORE_URLS: "http://0.0.0.0:5288"  # сервер слушает 5288 (см. твой Dockerfile)
-      # ↓ при необходимости раскомментируй и подставь свои значения:
-      # ConnectionStrings__Default: "Host=db;Port=5432;Database=labs;Username=postgres;Password=123456"
-      # GitLab__BaseUrl: "http://git.labserver.local"
-      # GitLab__AuthToken: "dummy-token-or-variable"
-      # ASPNETCORE_ENVIRONMENT: "Development"
+      ASPNETCORE_URLS: "http://0.0.0.0:5288" 
     networks:
       - gitlab_net
 
   webserver:
-    # Собираем образ Nginx с «выпеченными» конфигами и собранным фронтом
     build:
       context: .
       dockerfile: nginx/Dockerfile.ci
-    volumes: []                               # никаких runtime volumes в CI
+    volumes: []
     networks:
       gitlab_net:
         aliases:
@@ -28,12 +22,10 @@ services:
       timeout: 2s
       retries: 40
       start_period: 10s
-    # (опционально) ускорит старт последовательностью, но не обязателен:
-    # depends_on:
-    #   - labserver
+
 
   db:
-    ports: []            # в CI не публикуем наружу
+    ports: []
 
   gitlab:
     environment:
@@ -46,7 +38,7 @@ services:
         puma['max_threads'] = 4
         sidekiq['concurrency'] = 4
 
-    ports: []            # в CI не публикуем наружу
+    ports: []
     networks:
       gitlab_net:
         aliases:

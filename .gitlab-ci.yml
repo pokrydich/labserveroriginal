@@ -1,5 +1,8 @@
 stages:
+  - build
+  - unit_test
   - secrets_information
+  - integration_test
   - functional_test
 
 variables:
@@ -11,6 +14,25 @@ variables:
   LABSERVER_NGINX_BASE: "http://admin.labserver.local/"
   LABSERVER_GITLAB_BASE: "http://git.labserver.local/"
   LABSERVER_DB_CONNECTION: "Host=db;Port=5432;Database=labs;Username=postgres;Password=123456;Timeout=10"
+
+build:
+  stage: build
+  image: mcr.microsoft.com/dotnet/sdk:9.0
+  script:
+    - dotnet restore
+    - dotnet build --configuration Release
+
+test:unit:
+  stage: unit_test
+  image: mcr.microsoft.com/dotnet/sdk:9.0
+  script:
+    - >
+      dotnet test "Server.Tests/LabServer.Server.Tests.csproj"
+      --configuration Release
+      /p:CollectCoverage=true
+      /p:CoverletOutputFormat=cobertura
+      /p:CoverletOutput=$(pwd)/TestResults/coverage.cobertura.xml
+  coverage: '/Total.*?([0-9]+\.[0-9]+)/'
 
 generate:dotenv:
   stage: secrets_information
@@ -43,6 +65,147 @@ generate:dotenv:
       - CI-CD/generated.env
       - Server/appsettings.docker.json
 
+
+test:integration:
+  stage: integration_test
+  image: docker:25.0.4
+  needs: ["generate:dotenv"]
+  services:
+    - name: docker:25.0.4-dind
+      alias: docker
+      command: ["--host=tcp://0.0.0.0:2375", "--tls=false"]
+  variables:
+    DOCKER_HOST: tcp://docker:2375
+    DOCKER_TLS_CERTDIR: ""
+  before_script:
+    - apk add --no-cache curl docker-cli-compose postgresql-client
+    - |
+      i=0
+      until docker info >/dev/null 2>&1; do
+        i=$((i+1)); [ $i -gt 60 ] && echo "Docker daemon not ready" && exit 1
+        echo "Waiting for Docker daemon..."; sleep 2
+      done
+    - docker compose version
+
+    - docker network inspect "${NET_NAME}" >/dev/null 2>&1 || docker network create "${NET_NAME}"
+
+    - docker compose -f compose.yml -f compose.integration-ci.yml up -d gitlab
+
+    - |
+      echo "Waiting for GitLab to be ready..."
+      for i in $(seq 1 60); do
+        if docker compose -f compose.yml -f compose.integration-ci.yml exec -T gitlab \
+             bash -lc "curl -fsS http://localhost/-/health >/dev/null"; then
+          echo "GitLab is ready"; break
+        fi
+        echo "gitlab not ready yet... ($i/60)"; sleep 10
+        if [ $i -eq 60 ]; then
+          echo "GitLab NOT ready"
+          docker logs $(docker compose -f compose.yml -f compose.integration-ci.yml ps -q gitlab) | tail -n 200 || true
+          exit 1
+        fi
+      done
+    
+    - |
+      echo "Creating/Updating root PAT in GitLab using GITLAB_PAT"
+      docker compose -f compose.yml -f compose.integration-ci.yml exec -T -e ROOT_PAT="$GITLAB_PAT" gitlab bash -lc "
+      set -e
+      gitlab-rails runner \"
+      user = User.find_by_username('root')
+      token = user.personal_access_tokens.create(
+        scopes: [
+          'api',
+          'read_api',
+          'read_user',
+          'create_runner',
+          'manage_runner',
+          'read_repository',
+          'write_repository',
+          'sudo',
+          'admin_mode',
+          'self_rotate',
+          'read_service_ping'
+        ],
+        name: 'Automation token',
+        expires_at: 365.days.from_now
+      )
+      token.set_token(ENV['ROOT_PAT'])
+      token.save!
+      a = PersonalAccessToken.find_by_token(ENV['ROOT_PAT'])
+      puts a.inspect
+      \"
+      "
+
+    - docker compose -f compose.yml -f compose.integration-ci.yml build webserver labserver
+
+    - docker compose -f compose.yml -f compose.integration-ci.yml up -d db
+    - |
+      echo "Waiting for Postgres (db) to be ready..."
+      for i in $(seq 1 60); do
+        if docker compose -f compose.yml -f compose.integration-ci.yml exec -T db \
+            pg_isready -h localhost -p 5432 -d labs -U postgres >/dev/null 2>&1; then
+          echo "Postgres is ready"; break
+        fi
+        echo "db not ready yet... ($i/60)"; sleep 2
+        if [ $i -eq 60 ]; then
+          echo "Postgres NOT ready"
+          docker compose -f compose.yml -f compose.integration-ci.yml logs db | tail -n 200 || true
+          exit 1
+        fi
+      done
+
+    - >
+      docker compose -f compose.yml -f compose.integration-ci.yml run --rm tests
+      bash -lc '
+        set -euo pipefail
+        cd Server
+        dotnet new tool-manifest >/dev/null 2>&1 || true
+        dotnet tool install dotnet-ef >/dev/null 2>&1 || true
+        dotnet tool restore
+        echo "Applying EF migrations to: $LABSERVER_DB_CONNECTION"
+        dotnet ef migrations add init
+        dotnet ef database update --connection "$LABSERVER_DB_CONNECTION"
+      '
+
+    
+    - docker compose -f compose.yml -f compose.integration-ci.yml up -d webserver labserver
+
+    - docker compose -f compose.yml -f compose.integration-ci.yml run --rm tests getent hosts admin.labserver.local
+    - |
+      echo "Waiting for admin.labserver.local /health ..."
+      for i in $(seq 1 120); do
+        if docker compose -f compose.yml -f compose.integration-ci.yml run --rm tests \
+             curl -fsS -o /dev/null http://admin.labserver.local/health; then
+          echo "admin.labserver.local is ready"; break
+        fi
+        echo "not ready yet... ($i/120)"; sleep 2
+        if [ $i -eq 120 ]; then
+          echo "admin.labserver.local NOT ready"
+          docker compose -f compose.yml -f compose.integration-ci.yml ps
+          docker logs $(docker compose -f compose.yml -f compose.integration-ci.yml ps -q webserver) | tail -n 200 || true
+          exit 1
+        fi
+      done
+
+  script:
+    - mkdir -p TestResults
+    - >
+      docker compose -f compose.yml -f compose.integration-ci.yml run --rm tests bash -c "
+        dotnet test Server.IntegrationTests/Server.IntegrationTests.csproj \
+          --configuration Release \
+          --filter 'FullyQualifiedName~Server.IntegrationTests.Api' \
+          --logger 'console;verbosity=detailed' \
+          --logger 'trx;LogFileName=/workspace/TestResults/integration.trx' \
+          --verbosity normal
+        "
+
+  after_script:
+    # - docker logs $(docker compose -f compose.yml -f compose.integration-ci.yml ps -q gitlab) | tail -n 150
+    # - docker logs $(docker compose -f compose.yml -f compose.integration-ci.yml ps -q labserver) | tail -n 150
+    # - docker logs $(docker compose -f compose.yml -f compose.integration-ci.yml ps -q webserver) | head -n 150
+
+    - docker compose -f compose.yml -f compose.integration-ci.yml down
+
 test:functional:
   stage: functional_test
   image: docker:25.0.4
@@ -64,63 +227,60 @@ test:functional:
       done
     - docker compose version
 
-    # Сеть для всех сервисов
     - docker network inspect "${NET_NAME}" >/dev/null 2>&1 || docker network create "${NET_NAME}"
 
     - docker compose -f compose.yml -f compose.functional-ci.yml build tests
     - docker compose -f compose.yml -f compose.functional-ci.yml run --rm tests jmeter --version
 
-    # - docker compose -f compose.yml -f compose.functional-ci.yml up -d gitlab
+    - docker compose -f compose.yml -f compose.functional-ci.yml up -d gitlab
 
-    # - |
-    #   echo "Waiting for GitLab to be ready..."
-    #   for i in $(seq 1 60); do
-    #     if docker compose -f compose.yml -f compose.functional-ci.yml exec -T gitlab \
-    #          bash -lc "curl -fsS http://localhost/-/health >/dev/null"; then
-    #       echo "GitLab is ready"; break
-    #     fi
-    #     echo "gitlab not ready yet... ($i/60)"; sleep 10
-    #     if [ $i -eq 60 ]; then
-    #       echo "GitLab NOT ready"
-    #       docker logs $(docker compose -f compose.yml -f compose.functional-ci.yml ps -q gitlab) | tail -n 200 || true
-    #       exit 1
-    #     fi
-    #   done
+    - |
+      echo "Waiting for GitLab to be ready..."
+      for i in $(seq 1 60); do
+        if docker compose -f compose.yml -f compose.functional-ci.yml exec -T gitlab \
+             bash -lc "curl -fsS http://localhost/-/health >/dev/null"; then
+          echo "GitLab is ready"; break
+        fi
+        echo "gitlab not ready yet... ($i/60)"; sleep 10
+        if [ $i -eq 60 ]; then
+          echo "GitLab NOT ready"
+          docker logs $(docker compose -f compose.yml -f compose.functional-ci.yml ps -q gitlab) | tail -n 200 || true
+          exit 1
+        fi
+      done
     
-    # - |
-    #   echo "Creating/Updating root PAT in GitLab using GITLAB_PAT"
-    #   docker compose -f compose.yml -f compose.functional-ci.yml exec -T -e ROOT_PAT="$GITLAB_PAT" gitlab bash -lc "
-    #   set -e
-    #   gitlab-rails runner \"
-    #   user = User.find_by_username('root')
-    #   token = user.personal_access_tokens.create(
-    #     scopes: [
-    #       'api',
-    #       'read_api',
-    #       'read_user',
-    #       'create_runner',
-    #       'manage_runner',
-    #       'read_repository',
-    #       'write_repository',
-    #       'sudo',
-    #       'admin_mode',
-    #       'self_rotate',
-    #       'read_service_ping'
-    #     ],
-    #     name: 'Automation token',
-    #     expires_at: 365.days.from_now
-    #   )
-    #   token.set_token(ENV['ROOT_PAT'])
-    #   token.save!
-    #   a = PersonalAccessToken.find_by_token(ENV['ROOT_PAT'])
-    #   puts a.inspect
-    #   \"
-    #   "
+    - |
+      echo "Creating/Updating root PAT in GitLab using GITLAB_PAT"
+      docker compose -f compose.yml -f compose.functional-ci.yml exec -T -e ROOT_PAT="$GITLAB_PAT" gitlab bash -lc "
+      set -e
+      gitlab-rails runner \"
+      user = User.find_by_username('root')
+      token = user.personal_access_tokens.create(
+        scopes: [
+          'api',
+          'read_api',
+          'read_user',
+          'create_runner',
+          'manage_runner',
+          'read_repository',
+          'write_repository',
+          'sudo',
+          'admin_mode',
+          'self_rotate',
+          'read_service_ping'
+        ],
+        name: 'Automation token',
+        expires_at: 365.days.from_now
+      )
+      token.set_token(ENV['ROOT_PAT'])
+      token.save!
+      a = PersonalAccessToken.find_by_token(ENV['ROOT_PAT'])
+      puts a.inspect
+      \"
+      "
 
-    # Собираем образы (nginx и labserver)
     - docker compose -f compose.yml -f compose.functional-ci.yml build webserver labserver
 
-    # 1) Поднимаем ТОЛЬКО БД и ждём, пока она действительно примет соединения
     - docker compose -f compose.yml -f compose.functional-ci.yml up -d db
     - |
       echo "Waiting for Postgres (db) to be ready..."
@@ -137,7 +297,6 @@ test:functional:
         fi
       done
 
-    # 2) Применяем EF-миграции к БД внутри сервиса tests (без изменения compose.yml)
     - >
       docker compose -f compose.yml -f compose.functional-ci.yml run --rm tests
       bash -lc '
@@ -152,10 +311,8 @@ test:functional:
       '
 
     
-    # 3) Теперь поднимаем webserver и labserver (схема уже есть)
     - docker compose -f compose.yml -f compose.functional-ci.yml up -d webserver labserver
 
-    # 4) Проверяем резолв имени и готовность admin.labserver.local
     - docker compose -f compose.yml -f compose.functional-ci.yml run --rm tests getent hosts admin.labserver.local
     - |
       echo "Waiting for admin.labserver.local /health ..."
@@ -175,7 +332,6 @@ test:functional:
 
   script:
     - mkdir -p TestResults
-    # 5) Запускаем тесты с подробным консольным логированием (видно Console.WriteLine в job-логе) и выгрузкой .trx
     - |
       docker compose -f compose.yml -f compose.functional-ci.yml run --rm tests \
         jmeter -n \
@@ -212,7 +368,7 @@ test:functional:
 
   after_script:
     # - docker logs $(docker compose -f compose.yml -f compose.functional-ci.yml ps -q gitlab) | tail -n 150
-    - docker logs $(docker compose -f compose.yml -f compose.functional-ci.yml ps -q labserver) | tail -n 150
+    # - docker logs $(docker compose -f compose.yml -f compose.functional-ci.yml ps -q labserver) | tail -n 150
     # - docker logs $(docker compose -f compose.yml -f compose.functional-ci.yml ps -q webserver) | head -n 150
 
     - docker compose -f compose.yml -f compose.functional-ci.yml down
@@ -221,3 +377,7 @@ test:functional:
     when: always
     paths:
       - TestResults/
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: TestResults/coverage.cobertura.xm
